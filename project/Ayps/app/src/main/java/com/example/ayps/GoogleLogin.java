@@ -1,5 +1,6 @@
 package com.example.ayps;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,9 +32,9 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_login);
 
-        if  ( !amplifySetUp() ) {
+        /*if  ( !amplifySetUp() ) {
             this.finishAffinity();
-        }
+        }*/
 
         /*Amplify.Auth.fetchAuthSession(
                 onSuccess -> Log.i("fetchAuthSession", onSuccess.toString()),
@@ -135,7 +136,7 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
     }
 
     // Initialize Amplify API
-    private Boolean amplifySetUp( ) {
+    private Boolean amplifySetUp(  ) {
 
         try {
             // Initialize Amplify API plugin
