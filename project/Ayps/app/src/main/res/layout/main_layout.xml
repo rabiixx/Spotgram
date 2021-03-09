@@ -19,7 +19,7 @@
             android:background="@color/white"
             app:itemIconTint="@color/bottom_nav_color"
             app:itemTextColor="@color/bottom_nav_color"
-            app:menu="@menu/bottom_navigation_menu"
-            />
+            app:menu="@menu/bottom_navigation_menu" />
+
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

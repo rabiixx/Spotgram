@@ -5,4 +5,8 @@
     <string name="verification_code_msg">A verification code has been sent to your email. Please enter it to verify your account.</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- MapBox Public Token -->
+    <string name="mapbox_access_token">pk.eyJ1IjoicmFiaWl4eCIsImEiOiJja2w5bG9lMngwY3l0Mm5zOHcxY3ZmNjJjIn0.TKKl1uq5ka_vNVKlfZPuFA</string>
+
 </resources>
