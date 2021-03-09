@@ -56,6 +56,8 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
         Button signOutButton = findViewById( R.id.sign_out_button );
         Button checkAuth = findViewById( R.id.check_auth );
         Button signUp = findViewById( R.id.sign_up );
+        Button fetchData = findViewById( R.id.fetch_data );
+        Button fragments = findViewById( R.id.fragments );
 
         // Set the dimensions of the sign-in button.
         signInButton.setSize( SignInButton.SIZE_STANDARD );
@@ -65,7 +67,8 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
         signOutButton.setOnClickListener( this );
         checkAuth.setOnClickListener( this );
         signUp.setOnClickListener( this );
-
+        fetchData.setOnClickListener( this );
+        fragments.setOnClickListener( this );
     }
 
     // Listener Manager
@@ -85,9 +88,13 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
                 checkAuth();
                 break;
             case R.id.sign_up:
-                Intent intent = new Intent(this, SignUp.class);
-                startActivity(intent);
+                startActivity( new Intent(this, SignUp.class) );
                 break;
+            case R.id.fetch_data:
+                startActivity( new Intent(this, QueryData.class) );
+                break;
+            case R.id.fragments:
+                startActivity( new Intent( this, MainActivity2.class ) );
         }
     }
 
@@ -159,7 +166,6 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
             return Boolean.FALSE;
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

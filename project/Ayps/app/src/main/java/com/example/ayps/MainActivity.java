@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
 
         SignInButton signInButton = findViewById(R.id.sign_in_button);
 
@@ -55,65 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        /*try {
 
-            Amplify.addPlugin( new AWSCognitoAuthPlugin() );
-            Amplify.addPlugin( new AWSApiPlugin() );
-            Amplify.configure( getApplicationContext() );
-
-            Log.i("MyAmplifyApp", "Initialized Amplify");
-
-            /*Amplify.Auth.fetchAuthSession(
-                    result -> Log.i("AmplifyQuickstart", result.toString()),
-                    error -> Log.e("AmplifyQuickstart", error.toString())
-            );
-
-        } catch ( final AmplifyException ex ) {
-            Log.e("MyAmplifyApp", "Could not initialize Amplify", ex);
-        }*/
-
-
-        // Register User on Cognito
-        /*Amplify.Auth.signUp(
-                "rabiixx",
-                "Rabiixx12",
-                AuthSignUpOptions.builder().userAttribute(AuthUserAttributeKey.email(), "99rubenche@gmail.com").build(),
-                result -> Log.i("AuthQuickStart", "Result: " + result.toString()),
-                error -> Log.e("AuthQuickStart", "Sign up failed", error)
-        );*/
-
-        // Confirm Sign Up
-        /*Amplify.Auth.confirmSignUp(
-                "rabiixx",
-                "131371",
-                result -> Log.i("AuthQuickstart", result.isSignUpComplete() ? "Confirm signUp succeeded" : "Confirm sign up not complete"),
-                error -> Log.e("AuthQuickstart", error.toString())
-        );*/
-
-        /*Amplify.Auth.signIn(
-                "rabiixx",
-                "Rabiixx12",
-                result -> Log.i("AuthQuickstart", result.isSignInComplete() ? "Sign in succeeded" : "Sign in not complete"),
-                error -> Log.e("AuthQuickstart", error.toString())
-        );
-
-        Amplify.Auth.fetchAuthSession(
-                result -> Log.i("AmplifyQuickstart", result.toString()),
-                error -> Log.e("AmplifyQuickstart", error.toString())
-        );*/
-
-
-
-        /*Todo todo = Todo.builder()
-                .name("My second todo")
-                .description("todo description two")
-                .build();
-
-        Amplify.API.mutate(
-                ModelMutation.create( todo ),
-                response -> Log.i("MyAmplifyApp", "Added Todo with id: " + response.getData().getId()),
-                error -> Log.e("MyAmplifyApp", "Create failed", error)
-        );*/
 
     }
 

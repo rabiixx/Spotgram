@@ -17,7 +17,7 @@
             android:layout_height="83dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp"
-            android:src="@drawable/e525c14ff9d77a7cb0b9b700faf23d57" />
+            android:src="@drawable/spotgh_logo" />
 
         <!-- Email Label -->
         <android.support.design.widget.TextInputLayout

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/explore"
+        android:enabled="true"
+        android:icon="@drawable/ic_menu_explore"
+        android:title="Explore"/>
+    <item
+        android:id="@+id/add_spot"
+        android:enabled="true"
+        android:icon="@drawable/ic_menu_add_spot_rounded_filled"
+        android:title="Add Spot"/>
+    <item
+        android:id="@+id/profile"
+        android:enabled="true"
+        android:icon="@drawable/ic_menu_profile_24"
+        android:title="Profile"/>
+</menu>

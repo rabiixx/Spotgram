@@ -3,4 +3,6 @@
     <string name="g3csquh32ahoec9bmn0gnon4cdl1p0gr.apps.googleusercontent.com">210023741845-g3csquh32ahoec9bmn0gnon4cdl1p0gr.apps.googleusercontent.com</string>
     <string name="email">Email</string>
     <string name="verification_code_msg">A verification code has been sent to your email. Please enter it to verify your account.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
