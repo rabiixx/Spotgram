@@ -27,6 +27,16 @@
         app:layout_constraintTop_toBottomOf="@+id/sign_in_button" />
 
     <Button
+        android:id="@+id/mapbox"
+        android:layout_width="97dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="132dp"
+        android:text="MapBox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sign_in_button" />
+
+    <Button
         android:id="@+id/check_auth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

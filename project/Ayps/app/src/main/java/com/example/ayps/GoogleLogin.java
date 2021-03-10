@@ -1,6 +1,5 @@
 package com.example.ayps;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,18 +9,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.amazonaws.mobileconnectors.cognitoauth.Auth;
 import com.amplifyframework.AmplifyException;
 import com.amplifyframework.api.aws.AWSApiPlugin;
-import com.amplifyframework.auth.AuthChannelEventName;
-import com.amplifyframework.auth.AuthException;
 import com.amplifyframework.auth.AuthProvider;
-import com.amplifyframework.auth.AuthSession;
-import com.amplifyframework.auth.AuthUser;
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
-import com.amplifyframework.core.InitializationStatus;
-import com.amplifyframework.hub.HubChannel;
 import com.google.android.gms.common.SignInButton;
 
 public class GoogleLogin extends AppCompatActivity implements View.OnClickListener {
@@ -58,6 +50,7 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
         Button signUp = findViewById( R.id.sign_up );
         Button fetchData = findViewById( R.id.fetch_data );
         Button fragments = findViewById( R.id.fragments );
+        Button mapbox = findViewById( R.id.mapbox );
 
         // Set the dimensions of the sign-in button.
         signInButton.setSize( SignInButton.SIZE_STANDARD );
@@ -69,6 +62,7 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
         signUp.setOnClickListener( this );
         fetchData.setOnClickListener( this );
         fragments.setOnClickListener( this );
+        mapbox.setOnClickListener( this );
     }
 
     // Listener Manager
@@ -95,6 +89,8 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
                 break;
             case R.id.fragments:
                 startActivity( new Intent( this, MainActivity2.class ) );
+            case R.id.mapbox:
+                startActivity( new Intent( this, MapBoxTest.class ));
         }
     }
 

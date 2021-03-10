@@ -9,4 +9,10 @@
     <!-- MapBox Public Token -->
     <string name="mapbox_access_token">pk.eyJ1IjoicmFiaWl4eCIsImEiOiJja2w5bG9lMngwY3l0Mm5zOHcxY3ZmNjJjIn0.TKKl1uq5ka_vNVKlfZPuFA</string>
 
+    <!-- MapBox Test activity -->
+    <string name="location_picker_select_location_button_cancel">Cancel</string>
+    <string name="location_picker_select_location_button_select">Select a location</string>
+    <string name="location_picker_dropped_marker_snippet_no_results">No results</string>
+    <string name="location_picker_place_name_result">Place name: %1$s</string>
+
 </resources>

@@ -10,4 +10,8 @@
     <color name="error">#e74c3c</color>
     <color name="orange">#ffa801</color>
 
+    <!-- MapBox Colors-->
+    <color name="mapboxPink">#ee4e8b</color>
+    <color name="mapboxGray">#607d9c</color>
+
 </resources>

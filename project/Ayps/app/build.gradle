@@ -62,9 +62,14 @@ dependencies {
     // Circle Image View
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
-    // MapBox API
+    // MapBox Maps API
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.5.0'
 
+    // Java SDK 5.6.0 Services Package ( Geocoding )
+    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:5.6.0'
+
+    // Timber Logger API
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
 }
 
