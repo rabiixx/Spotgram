@@ -1,7 +1,9 @@
 package com.example.ayps;
 
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -90,11 +93,16 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
                 // This is done by using an image view with the default marker found in the SDK. You can
                 // swap out for your own marker image, just make sure it matches up with the dropped marker.
                 hoveringMarker = new ImageView(MapBoxTest.this);
-                hoveringMarker.setImageResource(R.drawable.red_marker);
+                hoveringMarker.setImageResource(R.drawable.ic_pin);
+
+
+
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
                 hoveringMarker.setLayoutParams(params);
+                hoveringMarker.getLayoutParams().height = 128;
+                hoveringMarker.getLayoutParams().width = 128;
                 mapView.addView(hoveringMarker);
 
                 // Initialize, but don't show, a SymbolLayer for the marker icon which will represent a selected location.
@@ -243,11 +251,11 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
      * @param point The location to use for the search
      */
 
-    private void reverseGeocode(final Point point) {
+    private void reverseGeocode( final Point point ) {
         try {
             MapboxGeocoding client = MapboxGeocoding.builder()
                     .accessToken( getString( R.string.mapbox_access_token ) )
-                    .query(Point.fromLngLat(point.longitude(), point.latitude()))
+                    .query( Point.fromLngLat( point.longitude(), point.latitude() ) )
                     .geocodingTypes(GeocodingCriteria.TYPE_ADDRESS)
                     .build();
 
@@ -257,6 +265,16 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
 
                     if (response.body() != null) {
                         List<CarmenFeature> results = response.body().features();
+
+                        final String locaiity = Objects.requireNonNull(response.body().features().get(0).context()).get(1).text();
+
+                        final String place = Objects.requireNonNull(response.body().features().get(0).context()).get(2).text();
+
+                        final String region = Objects.requireNonNull(response.body().features().get(0).context()).get(3).text();
+
+                        final String country = Objects.requireNonNull(response.body().features().get(0).context()).get(4).text();
+
+
                         if (results.size() > 0) {
                             CarmenFeature feature = results.get(0);
 
@@ -265,6 +283,12 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
                                 @Override
                                 public void onStyleLoaded(@NonNull Style style) {
                                     if (style.getLayer(DROPPED_MARKER_LAYER_ID) != null) {
+
+                                        Timber.i("Geocode: %s", feature.toString()  );
+                                        Log.i("Geocode" , feature.toString());
+
+
+
                                         Toast.makeText(MapBoxTest.this,
                                                 String.format(getString(R.string.location_picker_place_name_result),
                                                         feature.placeName()), Toast.LENGTH_SHORT).show();
