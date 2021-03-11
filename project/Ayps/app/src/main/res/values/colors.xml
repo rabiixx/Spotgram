@@ -14,4 +14,7 @@
     <color name="mapboxPink">#ee4e8b</color>
     <color name="mapboxGray">#607d9c</color>
 
+    <color name="noColor"></color>
+
+
 </resources>

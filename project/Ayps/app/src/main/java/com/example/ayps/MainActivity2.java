@@ -5,8 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.ayps.ExploreFragment;
 import com.example.ayps.AddSpotFragment;
@@ -28,6 +32,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         bottomNavigationView.setOnNavigationItemSelectedListener( navigationItemSelectedListener );
         openFragments( ExploreFragment.newInstance( "", "" ) );
+
     }
 
     public void openFragments( Fragment fragment ) {
@@ -59,4 +64,5 @@ public class MainActivity2 extends AppCompatActivity {
                     return false;
                 }
             };
+
 }

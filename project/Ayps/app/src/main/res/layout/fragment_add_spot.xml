@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".AddSpotFragment">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -28,9 +27,7 @@
             android:layout_marginTop="30dp"
             android:layout_marginBottom="8dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="Title"
-            app:counterEnabled="true"
-            app:counterMaxLength="200">
+            android:hint="Title">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_username"
@@ -62,6 +59,62 @@
                 app:endIconMode="clear_text"/>
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/place_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:hint="Place"
+            app:endIconDrawable="@drawable/ic_map"
+            app:endIconMode="custom"
+            app:endIconCheckable="true"
+            app:endIconTint="@color/noColor"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_place"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tagsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:hint="Tags"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:id="@+id/tags_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Add new spot"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            app:backgroundTint="#ffc048"
+            android:textColor="@color/black"
+            app:elevation="2dp"
+            />
+
 
 
 

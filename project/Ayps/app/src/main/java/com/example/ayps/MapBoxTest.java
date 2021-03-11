@@ -1,7 +1,11 @@
 package com.example.ayps;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -12,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.geocoding.v5.GeocodingCriteria;
@@ -34,6 +39,7 @@ import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import java.sql.Time;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,6 +73,15 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
     private ImageView hoveringMarker;
     private Layer droppedMarkerLayer;
 
+    private String locality = "Unknown";
+    private String place = "Unknown";
+    private String region = "Unknown";
+    private String country = "Unknown";
+    private String placeName = "Unknown";
+
+    private Double latitude;
+    private Double longitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +94,36 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
         mapView = findViewById( R.id.mapView );
         mapView.onCreate( savedInstanceState );
         mapView.getMapAsync(this);
+
+        FloatingActionButton submit = findViewById(R.id.submit);
+
+        submit.setOnClickListener(v -> {
+
+            if ( placeName.toLowerCase().trim().equals("unknown") ) {
+                Toast.makeText(MapBoxTest.this, "You must select a place", Toast.LENGTH_SHORT).show();
+            } else {
+
+                Intent data = new Intent();
+
+                data.putExtra("locality", locality);
+                data.putExtra("place", place);
+                data.putExtra("region", region);
+                data.putExtra("country", country);
+                data.putExtra("placeName", placeName );
+
+                Log.i("debug", "Latitude: " + latitude );
+                Log.i("debug", "Longitude: " + longitude);
+
+                data.putExtra("latitude", latitude );
+                data.putExtra("longitude", longitude );
+
+                setResult(RESULT_OK, data);
+
+                finish();
+
+            }
+
+        });
     }
 
     @Override
@@ -93,7 +138,7 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
                 // This is done by using an image view with the default marker found in the SDK. You can
                 // swap out for your own marker image, just make sure it matches up with the dropped marker.
                 hoveringMarker = new ImageView(MapBoxTest.this);
-                hoveringMarker.setImageResource(R.drawable.ic_pin);
+                hoveringMarker.setImageResource(R.drawable.red_marker);
 
 
 
@@ -117,6 +162,9 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
 
                             // Use the map target's coordinates to make a reverse geocoding search
                             final LatLng mapTargetLatLng = mapboxMap.getCameraPosition().target;
+
+                            latitude = mapTargetLatLng.getLatitude();
+                            longitude = mapTargetLatLng.getLongitude();
 
                             // Hide the hovering red hovering ImageView marker
                             hoveringMarker.setVisibility(View.INVISIBLE);
@@ -165,9 +213,16 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
     }
 
     private void initDroppedMarker(@NonNull Style loadedMapStyle) {
+
+        Bitmap icon = BitmapFactory.decodeResource( this.getResources(),
+                R.drawable.blue_marker);
+
+        Bitmap new_icon = getResizedBitmap( icon, 80);
+
         // Add the marker image to map
-        loadedMapStyle.addImage("dropped-icon-image", BitmapFactory.decodeResource(
-                getResources(), R.drawable.blue_marker));
+        loadedMapStyle.addImage("dropped-icon-image", new_icon );
+
+
         loadedMapStyle.addSource(new GeoJsonSource("dropped-marker-source-id"));
         loadedMapStyle.addLayer(new SymbolLayer(DROPPED_MARKER_LAYER_ID,
                 "dropped-marker-source-id").withProperties(
@@ -176,6 +231,26 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
                 iconAllowOverlap(true),
                 iconIgnorePlacement(true)
         ));
+    }
+
+    public Bitmap getResizedBitmap( Bitmap bm, int newWidth ) {
+
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+
+        float scaleWidth = ((float) newWidth) / width;
+
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleWidth);
+
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bm, 0, 0, width, height, matrix, false);
+        bm.recycle();
+        return resizedBitmap;
     }
 
     @Override
@@ -263,35 +338,41 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
                 @Override
                 public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
 
+
+
                     if (response.body() != null) {
                         List<CarmenFeature> results = response.body().features();
-
-                        final String locaiity = Objects.requireNonNull(response.body().features().get(0).context()).get(1).text();
-
-                        final String place = Objects.requireNonNull(response.body().features().get(0).context()).get(2).text();
-
-                        final String region = Objects.requireNonNull(response.body().features().get(0).context()).get(3).text();
-
-                        final String country = Objects.requireNonNull(response.body().features().get(0).context()).get(4).text();
-
 
                         if (results.size() > 0) {
                             CarmenFeature feature = results.get(0);
 
+                            Log.i("debug", feature.toJson());
+
+                            Objects.requireNonNull(feature.context()).get(0).text();
+
                             // If the geocoder returns a result, we take the first in the list and show a Toast with the place name.
-                            mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                            mapboxMap.getStyle( new Style.OnStyleLoaded() {
                                 @Override
                                 public void onStyleLoaded(@NonNull Style style) {
                                     if (style.getLayer(DROPPED_MARKER_LAYER_ID) != null) {
 
-                                        Timber.i("Geocode: %s", feature.toString()  );
-                                        Log.i("Geocode" , feature.toString());
+                                        if ( Objects.requireNonNull(response.body().features().get(0).context()).get(1) != null ) {
+                                            locality = Objects.requireNonNull(response.body().features().get(0).context()).get(1).text();
+                                        }
 
+                                        if ( Objects.requireNonNull(response.body().features().get(0).context()).get(2) != null ) {
+                                            place = Objects.requireNonNull(response.body().features().get(0).context()).get(2).text();
+                                        }
 
+                                        if ( Objects.requireNonNull(response.body().features().get(0).context()).get(3) != null ) {
+                                            region = Objects.requireNonNull(response.body().features().get(0).context()).get(3).text();
+                                        }
 
-                                        Toast.makeText(MapBoxTest.this,
-                                                String.format(getString(R.string.location_picker_place_name_result),
-                                                        feature.placeName()), Toast.LENGTH_SHORT).show();
+                                        if ( Objects.requireNonNull(response.body().features().get(0).context()).get(4) != null ) {
+                                            country = Objects.requireNonNull(response.body().features().get(0).context()).get(4).text();
+                                        }
+
+                                        placeName = feature.placeName();
                                     }
                                 }
                             });

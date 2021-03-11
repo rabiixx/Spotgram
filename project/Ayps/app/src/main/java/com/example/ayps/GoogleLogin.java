@@ -88,9 +88,13 @@ public class GoogleLogin extends AppCompatActivity implements View.OnClickListen
                 startActivity( new Intent(this, QueryData.class) );
                 break;
             case R.id.fragments:
+                Log.i("debug", "start fragments");
                 startActivity( new Intent( this, MainActivity2.class ) );
+                break;
             case R.id.mapbox:
+                Log.i("debug", "start mapbox");
                 startActivity( new Intent( this, MapBoxTest.class ));
+                break;
         }
     }
 
