@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.Log;
@@ -23,7 +24,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.MultiAutoCompleteTextView;
 
+import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipDrawable;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.play.core.internal.ch;
@@ -33,6 +36,9 @@ import com.pchmn.materialchips.model.ChipInterface;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,8 +51,6 @@ import timber.log.Timber;
  */
 public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final int RESULT_OK = -1;
@@ -61,19 +65,29 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     private Double latitude;
     private Double longitude;
 
-    private static int SpannedLength = 0;
-    private static int lastChipSize = 0;
+
+    @BindView( R.id.input_title) TextInputEditText inputTitle;
+    @BindView( R.id.input_title) TextInputLayout titleLayout;
+
+    @BindView( R.id.input_description ) TextInputEditText inputDescription;
+    @BindView( R.id.input_description ) TextInputLayout descriptionLayout;
+
 
     @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.inputTagsLayout ) TextInputLayout inputTagsLayout;
+    @BindView( R.id.place_layout ) TextInputLayout placeLayout;
     @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.input_tags ) TextInputEditText inputTags;
+    @BindView( R.id.input_place ) TextInputEditText inputPlace;
 
-    private TextInputEditText inputPlace;
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.tags_layout ) TextInputLayout tagsLayout;
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.input_tag ) TextInputEditText inputTag;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.tags_group) ChipGroup tagsGroup;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.submit ) Button submit;
 
     public AddSpotFragment() {
         // Required empty public constructor
@@ -88,7 +102,7 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
      * @return A new instance of fragment AddSpotFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static AddSpotFragment newInstance(String param1, String param2) {
+    public static AddSpotFragment newInstance( String param1, String param2 ) {
         AddSpotFragment fragment = new AddSpotFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
@@ -101,22 +115,20 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            String mParam1 = getArguments().getString(ARG_PARAM1);
+            String mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView( LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState ) {
+
         View view = inflater.inflate(R.layout.fragment_add_spot, container, false);
         ButterKnife.bind(this, view);
 
-        inputPlace = view.findViewById( R.id.input_place );
-
-        final TextInputLayout placeLayout = view.findViewById( R.id.place_layout );
+        // Open select location map activity
         placeLayout.setEndIconOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,61 +136,55 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), R.layout.list_item, TAGS);
-
-        MultiAutoCompleteTextView autoCompleteTextView = view.findViewById( R.id.tags_dropdown );
-
-        autoCompleteTextView.setAdapter( arrayAdapter );
-        autoCompleteTextView.setTokenizer( new MultiAutoCompleteTextView.CommaTokenizer() );
-
-
-        inputTags.addTextChangedListener( new TextWatcher() {
+        // Add tag to chip group
+        tagsLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onClick(View v) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                Log.i("debug", "Start: " + i );
-                Log.i("debug", "End: " + i1 );
-                Log.i("debug", "Count: " + i2 );
-
-//                if ( charSequence.length() == SpannedLength - chipLength) {
-//                    SpannedLength = charSequence.length();
-//                }
-            }
-
-            @Override
-            public void afterTextChanged( Editable editable ) {
-
-                if ( editable.subSequence( SpannedLength, editable.length() ).toString().endsWith(" ") ) {
-
-                    Log.i("debug", "illo illo" );
-
-                    ChipDrawable chip = ChipDrawable.createFromResource( getContext(), R.xml.standalone_chip);
-                    chip.setText( editable.subSequence( SpannedLength, editable.length() ).toString().trim() );
-                    chip.setBounds(0, 0, chip.getIntrinsicWidth(), chip.getIntrinsicHeight());
-                    ImageSpan span = new ImageSpan( chip );
-                    editable.setSpan(span, SpannedLength, editable.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    lastChipSize = editable.length() - SpannedLength;
-                    SpannedLength = editable.length();
-
-                    Log.i("debug", "lastChipSize: " + lastChipSize);
-                    Log.i("debug", "SpannedLenght: " + SpannedLength);
-
+                if ( !inputTag.getText().toString().trim().isEmpty() ) {
+                    addChip( inputTag.getText().toString() );
+                    inputTag.setText("");
                 }
 
             }
         });
 
-
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                validateTitleDesc();
+            }
+        });
 
         return view;
     }
 
 
+    private boolean validateTitleDesc() {
+
+        if ( inputTitle.getText() != null && TextUtils.isEmpty( inputTitle.getText()) ) {
+            titleLayout.setError("Title cannot be empty.");
+            return Boolean.FALSE;
+        }
+
+        final String title = inputTitle.getText().toString().trim();
+
+        final String USERNAME_PATTERN = "[A-Z0-9]+";
+        Pattern pattern = Pattern.compile( USERNAME_PATTERN );
+        Matcher matcher = pattern.matcher( title );
+
+        if ( !matcher.matches() ) {
+            titleLayout.setError("Enter a valid title.");
+            return Boolean.FALSE;
+        }
+
+        if ( titleLayout.isErrorEnabled() )
+            titleLayout.setError("");
+
+        return Boolean.TRUE;
+    }
+
+    // Catch select location activity callback data
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ( requestCode == AddSpotFragment.requestCode ) {
             if ( resultCode == RESULT_OK) {
@@ -192,8 +198,8 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                 latitude = data.getDoubleExtra("latitude", 0.0);
                 longitude = data.getDoubleExtra("longitude", 0.0);
 
-                Log.i("debug", "Latitude: " + latitude);
-                Log.i("debug", "Longitude: " + longitude);
+//                Log.i("debug", "Latitude: " + latitude);
+//                Log.i("debug", "Longitude: " + longitude);
 
                 inputPlace.setText( data.getStringExtra( "placeName") );
 
@@ -201,13 +207,32 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    // Creates a chip and is added to chip group
+    @SuppressLint("SetTextI18n")
+    private void addChip(final String text ) {
+
+        Chip chip = new Chip( requireContext() );
+
+        chip.setOnCloseIconClickListener( chipCloseListener );
+
+        chip.setText( "#" + text );
+        chip.setBackgroundColor( getResources().getColor( R.color.orange ) );
+        chip.setCloseIconVisible( true );
+
+        tagsGroup.addView( chip );
+    }
+
     @Override
     public void onClick(View v) {
 
     }
 
-    private static final String[] TAGS = new String[] {
-            "Amanecer", "Anochecer", "Lugar Abandonado", "Paseo", "Picnic"
+    // Removes selected chip from chip group
+    private final View.OnClickListener chipCloseListener = new View.OnClickListener () {
+        @Override
+        public void onClick( View v ) {
+            tagsGroup.removeView( v );
+        }
     };
 
 }

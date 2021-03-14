@@ -14,29 +14,34 @@
         android:paddingTop="50dp"
         android:paddingRight="30dp">
 
+        <!-- Spot Image -->
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="100dp"
             android:layout_height="100dp"
             tools:src="@drawable/spotgh_logo" />
 
+        <!-- Spot Title -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_title"
+            android:id="@+id/title_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="8dp"
-            android:hint="Title">
+            android:hint="Title"
+            app:boxStrokeColor="#2ed573"
+            app:hintTextColor="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_username"
+                android:id="@+id/input_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Spot Description -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/description_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -47,7 +52,10 @@
             android:hint="Description"
             app:counterEnabled="true"
             app:counterMaxLength="200"
-            app:errorEnabled="true">
+            app:errorEnabled="true"
+            app:endIconMode="clear_text"
+            app:boxStrokeColor="#2ed573"
+            app:hintTextColor="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_description"
@@ -59,6 +67,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Select Location -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/place_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -70,7 +79,9 @@
             app:endIconCheckable="true"
             app:endIconDrawable="@drawable/ic_map"
             app:endIconMode="custom"
-            app:endIconTint="@color/noColor">
+            app:endIconTint="@color/noColor"
+            app:boxStrokeColor="#2ed573"
+            app:hintTextColor="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_place"
@@ -80,41 +91,38 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+
+        <!-- Spot tags-->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tagsLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:id="@+id/tags_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:hint="Tags">
-
-            <MultiAutoCompleteTextView
-                android:id="@+id/tags_dropdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/inputTagsLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="8dp"
-            android:hint="Title">
+            android:hint="Tags"
+            app:endIconCheckable="true"
+            app:endIconDrawable="@drawable/ic_check_mark2"
+            app:endIconMode="custom"
+            app:endIconTint="@color/green"
+            app:boxStrokeColor="#2ed573"
+            app:hintTextColor="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_tags"
+                android:id="@+id/input_tag"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Tags Group -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/tags_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </com.google.android.material.chip.ChipGroup>
 
         <Button
             android:id="@+id/submit"
@@ -126,9 +134,8 @@
             android:padding="12dp"
             android:text="Add new spot"
             android:textColor="@color/black"
-            app:backgroundTint="#ffc048"
-            app:elevation="2dp" />
-
+            app:backgroundTint="#2ed573"
+            android:elevation="2dp" />
 
     </LinearLayout>
 
