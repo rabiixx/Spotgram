@@ -1,11 +1,18 @@
 package com.example.ayps;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.text.Spanned;
+import android.text.TextWatcher;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +21,22 @@ import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.MultiAutoCompleteTextView;
 
+import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.play.core.internal.ch;
+import com.pchmn.materialchips.ChipsInput;
+import com.pchmn.materialchips.model.ChipInterface;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import timber.log.Timber;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +61,13 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     private Double latitude;
     private Double longitude;
 
+    private static int SpannedLength = 0;
+    private static int lastChipSize = 0;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.inputTagsLayout ) TextInputLayout inputTagsLayout;
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.input_tags ) TextInputEditText inputTags;
 
     private TextInputEditText inputPlace;
 
@@ -85,6 +112,7 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_spot, container, false);
+        ButterKnife.bind(this, view);
 
         inputPlace = view.findViewById( R.id.input_place );
 
@@ -96,15 +124,56 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        AutoCompleteTextView autoCompleteTextView = view.findViewById( R.id.tags_dropdown );
-        String[] cheeses = {
-                "Parmesan",
-                "Ricotta",
-                "Fontina",
-                "Mozzarella",
-                "Cheddar"
-        };
-        Adapter adapter = new ArrayAdapter<String>( this,  );
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), R.layout.list_item, TAGS);
+
+        MultiAutoCompleteTextView autoCompleteTextView = view.findViewById( R.id.tags_dropdown );
+
+        autoCompleteTextView.setAdapter( arrayAdapter );
+        autoCompleteTextView.setTokenizer( new MultiAutoCompleteTextView.CommaTokenizer() );
+
+
+        inputTags.addTextChangedListener( new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                Log.i("debug", "Start: " + i );
+                Log.i("debug", "End: " + i1 );
+                Log.i("debug", "Count: " + i2 );
+
+//                if ( charSequence.length() == SpannedLength - chipLength) {
+//                    SpannedLength = charSequence.length();
+//                }
+            }
+
+            @Override
+            public void afterTextChanged( Editable editable ) {
+
+                if ( editable.subSequence( SpannedLength, editable.length() ).toString().endsWith(" ") ) {
+
+                    Log.i("debug", "illo illo" );
+
+                    ChipDrawable chip = ChipDrawable.createFromResource( getContext(), R.xml.standalone_chip);
+                    chip.setText( editable.subSequence( SpannedLength, editable.length() ).toString().trim() );
+                    chip.setBounds(0, 0, chip.getIntrinsicWidth(), chip.getIntrinsicHeight());
+                    ImageSpan span = new ImageSpan( chip );
+                    editable.setSpan(span, SpannedLength, editable.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    lastChipSize = editable.length() - SpannedLength;
+                    SpannedLength = editable.length();
+
+                    Log.i("debug", "lastChipSize: " + lastChipSize);
+                    Log.i("debug", "SpannedLenght: " + SpannedLength);
+
+                }
+
+            }
+        });
+
+
 
         return view;
     }
@@ -136,4 +205,9 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
 
     }
+
+    private static final String[] TAGS = new String[] {
+            "Amanecer", "Anochecer", "Lugar Abandonado", "Paseo", "Picnic"
+    };
+
 }

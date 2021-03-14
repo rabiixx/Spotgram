@@ -26,4 +26,9 @@
     <style name="Theme.Ayps.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Ayps.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="ChipTextApperance" parent="TextAppearance.MaterialComponents.Chip">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
 </resources>

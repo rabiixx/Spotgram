@@ -73,5 +73,11 @@ dependencies {
     // Timber Logger API
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
+    // Material Chips Input
+    implementation 'com.github.pchmn:MaterialChipsInput:1.0.8'
+
+    // Butter Knife
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
 }
 

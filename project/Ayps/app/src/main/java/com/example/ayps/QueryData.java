@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.amplifyframework.AmplifyException;
 import com.amplifyframework.api.aws.AWSApiPlugin;
+import com.amplifyframework.api.graphql.model.ModelMutation;
 import com.amplifyframework.api.graphql.model.ModelQuery;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.generated.model.Todo;
@@ -31,7 +32,7 @@ public class QueryData extends AppCompatActivity {
 
         fecthData();
 
-        /*Todo todo = Todo.builder()
+        Todo todo = Todo.builder()
                 .name("My first todo")
                 .description("todo descripction")
                 .build();
@@ -40,7 +41,7 @@ public class QueryData extends AppCompatActivity {
                 ModelMutation.create( todo ),
                 response -> Log.i("MyAmplifyApp", "Added Todo with id: " + response.getData().getId()),
                 error -> Log.e("MyAmplifyApp", "Create failed", error)
-        );*/
+        );
     }
 
     private void fecthData( ) {
