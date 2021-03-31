@@ -2,47 +2,35 @@ package com.example.ayps;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
-import android.text.Editable;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.MultiAutoCompleteTextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.play.core.internal.ch;
-import com.pchmn.materialchips.ChipsInput;
-import com.pchmn.materialchips.model.ChipInterface;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import timber.log.Timber;
+import okio.GzipSink;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,6 +44,9 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     private static final int RESULT_OK = -1;
     private static final int requestCode = 203;
 
+    private JSONObject postData;
+    private ArrayList<String> tags = new ArrayList<>();
+
     // MapBox Geocode Data
     private String placeName;
     private String locality;
@@ -65,13 +56,15 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     private Double latitude;
     private Double longitude;
 
-
+    @SuppressLint("NonConstantResourceId")
     @BindView( R.id.input_title) TextInputEditText inputTitle;
-    @BindView( R.id.input_title) TextInputLayout titleLayout;
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.title_layout) TextInputLayout titleLayout;
 
+    @SuppressLint("NonConstantResourceId")
     @BindView( R.id.input_description ) TextInputEditText inputDescription;
-    @BindView( R.id.input_description ) TextInputLayout descriptionLayout;
-
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.description_layout ) TextInputLayout descriptionLayout;
 
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.place_layout ) TextInputLayout placeLayout;
@@ -152,26 +145,62 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                validateTitleDesc();
+
+                getCurrentDate();
+
+                if ( validateInput( inputTitle.getText().toString() )
+                        && validateInput( inputDescription.getText().toString() )
+                        && validateInput( inputTitle.getText().toString() )
+                ) {
+
+                    try {
+
+                        postData.put("title", inputTitle.getText().toString().trim() );
+                        postData.put("description", inputDescription.getText().toString().trim() );
+                        postData.put("longitude", String.valueOf( longitude ));
+                        postData.put("latitude", String.valueOf( latitude ) );
+                        postData.put("placeName", placeName );
+                        postData.put("locality", locality );
+                        postData.put("place", place );
+                        postData.put("region", region );
+                        postData.put("country",  country );
+                        postData.put("created_at", getCurrentDate() );
+
+                        Spot spot = new Spot();
+                        spot.postSpot( postData.toString().getBytes() );
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         });
 
         return view;
     }
 
+    private String getCurrentDate() {
 
-    private boolean validateTitleDesc() {
+        Date c = Calendar.getInstance().getTime();
+        System.out.println("Current time => " + c);
 
-        if ( inputTitle.getText() != null && TextUtils.isEmpty( inputTitle.getText()) ) {
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm", Locale.getDefault());
+        return df.format(c);
+
+    }
+
+
+    private boolean validateInput( final String data ) {
+
+        if ( data != null && TextUtils.isEmpty( data ) ) {
             titleLayout.setError("Title cannot be empty.");
             return Boolean.FALSE;
         }
 
-        final String title = inputTitle.getText().toString().trim();
-
         final String USERNAME_PATTERN = "[A-Z0-9]+";
         Pattern pattern = Pattern.compile( USERNAME_PATTERN );
-        Matcher matcher = pattern.matcher( title );
+        Matcher matcher = pattern.matcher( data );
 
         if ( !matcher.matches() ) {
             titleLayout.setError("Enter a valid title.");
@@ -198,9 +227,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                 latitude = data.getDoubleExtra("latitude", 0.0);
                 longitude = data.getDoubleExtra("longitude", 0.0);
 
-//                Log.i("debug", "Latitude: " + latitude);
-//                Log.i("debug", "Longitude: " + longitude);
-
                 inputPlace.setText( data.getStringExtra( "placeName") );
 
             }
@@ -209,7 +235,7 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
     // Creates a chip and is added to chip group
     @SuppressLint("SetTextI18n")
-    private void addChip(final String text ) {
+    private void addChip( final String text ) {
 
         Chip chip = new Chip( requireContext() );
 
@@ -220,6 +246,9 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         chip.setCloseIconVisible( true );
 
         tagsGroup.addView( chip );
+
+        tags.add( text );
+
     }
 
     @Override
@@ -231,7 +260,12 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     private final View.OnClickListener chipCloseListener = new View.OnClickListener () {
         @Override
         public void onClick( View v ) {
+
             tagsGroup.removeView( v );
+
+            String text = ((Chip) v).getText().toString();
+            tags.remove( text.replaceFirst("#", "") );
+
         }
     };
 

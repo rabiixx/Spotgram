@@ -1,55 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-        <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".ExploreFragment"
-            android:id="@+id/layout">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ExploreFragment"
+    android:id="@+id/layout">
 
-            <ImageView
-                android:id="@+id/header_cover_image"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/nav_header_bg1" />
+    <ImageView
+        android:id="@+id/header_cover_image"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/nav_header_bg1" />
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                app:civ_border_width="3dp"
-                app:civ_border_color="#FFFFFFFF"
-                android:id="@+id/imagenPerfil"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_below="@+id/header_cover_image"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="-130dp"
-                android:elevation="5dp"
-                android:padding="20dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/defavatar" />
+    <de.hdodenhof.circleimageview.CircleImageView
+        app:civ_border_width="3dp"
+        app:civ_border_color="#FFFFFFFF"
+        android:id="@+id/imagenPerfil"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/header_cover_image"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-130dp"
+        android:elevation="5dp"
+        android:padding="20dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/defavatar" />
 
-            <RelativeLayout
-                android:id="@+id/profile_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/header_cover_image"
-                android:background="@color/white"
-                android:elevation="4dp"
-                android:paddingBottom="24dp">
+    <RelativeLayout
+        android:id="@+id/profile_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header_cover_image"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:paddingBottom="24dp">
 
 
-                <TextView
-                    android:id="@+id/usernamePerfil"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="70dp"
-                    android:text="rabiixx"
-                    android:textColor="@color/black"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+        <TextView
+            android:id="@+id/usernamePerfil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="70dp"
+            android:text="rabiixx"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-            </RelativeLayout>
+    </RelativeLayout>
 
-        </RelativeLayout>
+    <!-- Signup Button -->
+    <Button
+        android:id="@+id/sign_out"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp"
+        android:padding="12dp"
+        android:text="Sign Out"
+        android:textColor="@color/black"
+        app:backgroundTint="#ffc048"
+        app:elevation="2dp" />
+
+</RelativeLayout>

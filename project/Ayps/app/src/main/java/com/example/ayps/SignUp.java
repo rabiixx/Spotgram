@@ -15,6 +15,9 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
 import com.amplifyframework.AmplifyException;
 import com.amplifyframework.api.aws.AWSApiPlugin;
 import com.amplifyframework.api.graphql.model.ModelQuery;
@@ -72,6 +75,8 @@ public class SignUp extends AppCompatActivity implements View.OnFocusChangeListe
             Log.e("MyAmplifyApp", "Could not initialize Amplify", ex);
         }
 
+        CognitoUserPool userPool = new CognitoUserPool(getApplicationContext(), AWSMobileClient.getInstance().getConfiguration() );
+
         submit.setOnClickListener(v -> {
 
             if (    validateEmail( email.getText().toString(), emailLayout )
@@ -84,6 +89,8 @@ public class SignUp extends AppCompatActivity implements View.OnFocusChangeListe
         });
 
     }
+
+
 
     @Override
     public void onFocusChange( View v, boolean hasFocus ) {

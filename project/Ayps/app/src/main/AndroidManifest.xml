@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.ayps">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.ayps"
+    android:usesCleartextTraffic="true"
+    tools:targetApi="m">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,16 +18,17 @@
         android:theme="@style/Theme.Ayps">
         <activity android:name=".MapBoxTest" />
         <activity android:name=".MainActivity2" />
-        <activity android:name=".QueryData" />
         <activity android:name=".ConfirmSignUp" />
         <activity android:name=".SignUp" />
-        <activity android:name=".GoogleLogin">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--    Amplify Social SignIn    -->
         <activity android:name="com.amazonaws.mobileconnectors.cognitoauth.activities.CustomTabsRedirectActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -35,7 +39,7 @@
                 <data android:scheme="ayps" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+
     </application>
 
 </manifest>
