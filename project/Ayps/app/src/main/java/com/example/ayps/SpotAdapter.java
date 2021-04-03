@@ -66,7 +66,7 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull SpotAdapter.ViewHolder holder, int position) {
 
         Resources res = holder.itemView.getContext().getResources();
-        
+
         SpotModal spot = spotArrayList.get( position );
 
         holder.authorIV.setImageDrawable( res.getDrawable( R.drawable.default_spot )  );
