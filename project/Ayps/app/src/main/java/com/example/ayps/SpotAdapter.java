@@ -30,23 +30,23 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         // Spot author data
         @SuppressLint("NonConstantResourceId")
         @BindView(R.id.author_profile_img)
-        private CircleImageView authorIV;
+        CircleImageView authorIV;
 
         @SuppressLint("NonConstantResourceId")
-        @BindView(R.id.author_profile_img)
-        private TextView authorUsername;
+        @BindView(R.id.author_username)
+        TextView authorUsername;
 
         @SuppressLint("NonConstantResourceId")
         @BindView(R.id.spot_num_likes)
-        private TextView spotNumLikes;
+        TextView spotNumLikes;
 
         @SuppressLint("NonConstantResourceId")
         @BindView(R.id.spot_title)
-        private TextView spotTitle;
+        TextView spotTitle;
 
         @SuppressLint("NonConstantResourceId")
         @BindView(R.id.spot_desc)
-        private TextView spotDesc;
+        TextView spotDesc;
 
         public ViewHolder( @NonNull View itemView ) {
             super( itemView );
@@ -80,7 +80,7 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        spotArrayList.size();
+        return spotArrayList.size();
     }
 
     public void add( final int position, final SpotModal spotModal ) {
