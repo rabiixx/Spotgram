@@ -12,7 +12,6 @@
 /captures
 .externalNativeBuild
 .cxx
-local.properties
 
 #amplify
 amplify/\#current-cloud-backend
