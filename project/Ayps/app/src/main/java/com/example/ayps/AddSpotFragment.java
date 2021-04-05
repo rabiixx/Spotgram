@@ -165,6 +165,7 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                         postData.put("region", region );
                         postData.put("country",  country );
                         postData.put("created_at", getCurrentDate() );
+                        postData.put("tags", tags.toString());
 
                         Spot spot = new Spot();
                         spot.postSpot( postData.toString().getBytes() );

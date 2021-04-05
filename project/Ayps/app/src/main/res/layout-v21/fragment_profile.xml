@@ -19,8 +19,8 @@
         app:civ_border_width="3dp"
         app:civ_border_color="#FFFFFFFF"
         android:id="@+id/imagenPerfil"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
         android:layout_below="@+id/header_cover_image"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="-130dp"
@@ -40,17 +40,38 @@
 
 
         <TextView
-            android:id="@+id/usernamePerfil"
+            android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="70dp"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/roboto_medium"
             android:text="rabiixx"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textColor="#2d333f"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/containedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/username"
+            android:layout_marginTop="10dp"
+            android:text="Edit Profile"
+            style="?attr/materialButtonOutlinedStyle"
+            android:textColor="#2d333f"
+            android:layout_centerHorizontal="true"
+            app:icon="@drawable/ic_edit_profile2"
+            app:iconTint="@color/black"
+            app:iconPadding="10dp"/>
 
     </RelativeLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/spot_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profile_layout"/>
 
     <!-- Signup Button -->
     <Button
@@ -65,6 +86,6 @@
         android:text="Sign Out"
         android:textColor="@color/black"
         app:backgroundTint="#ffc048"
-        app:elevation="2dp" />
+        android:elevation="2dp"/>
 
 </RelativeLayout>

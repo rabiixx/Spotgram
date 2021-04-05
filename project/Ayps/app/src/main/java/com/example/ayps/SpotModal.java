@@ -33,7 +33,7 @@ public class SpotModal {
 
     public SpotModal(String title, String description, String placeName, String locality,
                      String place, String region, String country, String latitude,
-                     String longitude, String userId, String tags) {
+                     String longitude, String userId, String tags, Integer numLikes) {
 
         this.title = title;
         this.description = description;
@@ -46,5 +46,6 @@ public class SpotModal {
         this.longitude = longitude;
         this.userId = userId;
         this.tags = tags;
+        this.numLikes = numLikes;
     }
 }

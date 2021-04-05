@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('C:\\Users\\Ruben\\Documents\\Spotgram\\project\\keystores\\spotgram.keystore')
+            storePassword 'android'
+            keyAlias 'key0'
+            keyPassword 'android'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "30.0.3"
 

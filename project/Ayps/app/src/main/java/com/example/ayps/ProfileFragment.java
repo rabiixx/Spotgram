@@ -6,6 +6,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +27,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -38,6 +43,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     GoogleSignInClient mGoogleSignInClient;
 
     GoogleSignInAccount account;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.spot_list )
+    RecyclerView spotListRV;
 
     // Layout Components
     @SuppressLint("NonConstantResourceId")
@@ -93,7 +102,21 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         signOutBtn.setOnClickListener( this );
 
+        ArrayList<SpotModal> spotArrayList = new ArrayList<>();
 
+        SpotModal spotModal = new SpotModal("title", "desc", "placeName", "locality",
+                "place", "region", "country", "latitude",
+                "longitude", "rabiixx12", "tags", 0);
+
+        spotArrayList.add( spotModal );
+        spotArrayList.add( spotModal );
+        spotArrayList.add( spotModal );
+
+        SpotGalleryAdapter adapter = new SpotGalleryAdapter( getActivity().getApplicationContext(), spotArrayList );
+        // LinearLayoutManager llm = new LinearLayoutManager(getActivity().getApplicationContext(), RecyclerView.VERTICAL, false );
+
+        spotListRV.setLayoutManager( new GridLayoutManager( view.getContext(), 3 ) );
+        spotListRV.setAdapter( adapter );
 
         return view;
     }

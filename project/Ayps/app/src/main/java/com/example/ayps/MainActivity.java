@@ -284,16 +284,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if ( Amplify.Auth.getCurrentUser() != null ) {
             Log.i("checkUserLogin", "User already logged in with amplify");
-            return;
-            //MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
-            //finish();
+            MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
+            finish();
         }
 
         if ( account != null ) {
             Log.i("checkUserLogin", "User already logged in with google");
-            return;
-//            MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
-//            finish();
+            MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
+            finish();
         }
 
         Log.i("checkUserLogin", "User not logged in");

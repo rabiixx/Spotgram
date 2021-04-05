@@ -1,7 +1,9 @@
 package com.example.ayps;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +21,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
     private ArrayList<SpotModal> spotArrayList;
+    private LayoutInflater mInflater;
+
 
     // Constructor
-    public SpotAdapter( ArrayList<SpotModal> spotArrayList ) {
+    public SpotAdapter(Context context, ArrayList<SpotModal> spotArrayList ) {
+        this.mInflater = LayoutInflater.from( context );
         this.spotArrayList = spotArrayList;
     }
 
@@ -59,6 +64,10 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
     @Override
     public SpotAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from( parent.getContext() ).inflate( R.layout.spot_list_item, parent,false );
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        int width = view.getMeasuredWidth();
+        int height = view.getMeasuredHeight();
+        Log.i("debug", "Height: " + height );
         return new ViewHolder(view);
     }
 
@@ -74,7 +83,7 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
         holder.spotTitle.setText( spot.getTitle() );
         holder.spotDesc.setText( spot.getDescription() );
-        holder.spotNumLikes.setText( spot.getNumLikes() );
+        holder.spotNumLikes.setText( String.valueOf( spot.getNumLikes() ) );
 
     }
 

@@ -13,6 +13,8 @@ public class AmplifySetup {
     private static AmplifySetup amplifySetup = null;
     private static Context applicationContext = null;
 
+    private static boolean setupCalled = false;
+
     private AmplifySetup() {}
 
     public static AmplifySetup getInstance( final Context context ) {
@@ -32,6 +34,8 @@ public class AmplifySetup {
 
     public void setUp() {
 
+        if ( setupCalled ) return;
+
         try {
             // Initialize Amplify API plugin
             Amplify.addPlugin( new AWSApiPlugin() );
@@ -41,6 +45,8 @@ public class AmplifySetup {
 
             // Configure Amplify
             Amplify.configure( applicationContext );
+
+            setupCalled = true;
 
             Log.i("AmplifySetup", "Initialized Amplify");
 
