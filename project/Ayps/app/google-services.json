@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1059474440908",
+    "project_id": "spotgram-5c6af",
+    "storage_bucket": "spotgram-5c6af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1059474440908:android:25b91cb8e3ecf1eb69b869",
+        "android_client_info": {
+          "package_name": "com.example.ayps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1059474440908-e25f0u04bipn337kvasjsro1c2hckn5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArc9e-44qvjntuvuAgI0zatwhG33LD540"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1059474440908-e25f0u04bipn337kvasjsro1c2hckn5r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

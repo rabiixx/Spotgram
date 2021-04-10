@@ -31,7 +31,7 @@ public class MainActivity2 extends AppCompatActivity {
         bottomNavigationView = findViewById( R.id.bottom_navigation );
 
         bottomNavigationView.setOnNavigationItemSelectedListener( navigationItemSelectedListener );
-        openFragments( ExploreFragment.newInstance( "", "" ) );
+        openFragments( ExploreFragment.newInstance() );
 
     }
 
@@ -51,7 +51,7 @@ public class MainActivity2 extends AppCompatActivity {
 
                     switch ( item.getItemId() ) {
                         case R.id.explore:
-                            openFragments( ExploreFragment.newInstance( "", "" ) );
+                            openFragments( ExploreFragment.newInstance() );
                             return true;
                         case R.id.add_spot:
                             openFragments( AddSpotFragment.newInstance( "", "" ) );

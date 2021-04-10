@@ -16,9 +16,9 @@
         android:src="@drawable/nav_header_bg1" />
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_img"
         app:civ_border_width="3dp"
         app:civ_border_color="#FFFFFFFF"
-        android:id="@+id/imagenPerfil"
         android:layout_width="130dp"
         android:layout_height="130dp"
         android:layout_below="@+id/header_cover_image"

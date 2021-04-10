@@ -2,35 +2,39 @@ package com.example.ayps;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.amplifyframework.core.Amplify;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,6 +48,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     GoogleSignInAccount account;
 
+    // FIREBASE
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.spot_list )
     RecyclerView spotListRV;
@@ -52,6 +60,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.sign_out )
     Button signOutBtn;
+
+    // Layout Components
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.profile_img )
+    CircleImageView profileImg;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -93,12 +106,38 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this, view);
+
+
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+
+        /*StorageReference storageReference = storageRef.child( "images/0debff2f-1aea-4b5a-88d8-bbeafd5dec3e" );
+
+        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Log.i("firebase", "URI: " + uri.toString() );
+                Picasso.get().load( uri.toString() ).into( profileImg );
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i("firebase", "Error obtaining picture url: " + e.getCause() );
+            }
+        });*/
+
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireContext() );
+        if ( account != null ) {
+            Picasso.get().load( account.getPhotoUrl() ).into( profileImg );
+        }
+
 
         signOutBtn.setOnClickListener( this );
 

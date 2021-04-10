@@ -32,7 +32,7 @@ public class AmplifySetup {
     }
 
 
-    public void setUp() {
+    public void setUp( Context context ) {
 
         if ( setupCalled ) return;
 
@@ -44,7 +44,7 @@ public class AmplifySetup {
             Amplify.addPlugin( new AWSCognitoAuthPlugin() );
 
             // Configure Amplify
-            Amplify.configure( applicationContext );
+            Amplify.configure( context );
 
             setupCalled = true;
 

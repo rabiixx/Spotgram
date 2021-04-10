@@ -20,12 +20,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
-    private ArrayList<SpotModal> spotArrayList;
+    private ArrayList<SpotModel> spotArrayList;
     private LayoutInflater mInflater;
 
 
     // Constructor
-    public SpotAdapter(Context context, ArrayList<SpotModal> spotArrayList ) {
+    public SpotAdapter(Context context, ArrayList<SpotModel> spotArrayList ) {
         this.mInflater = LayoutInflater.from( context );
         this.spotArrayList = spotArrayList;
     }
@@ -76,7 +76,7 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
         Resources res = holder.itemView.getContext().getResources();
 
-        SpotModal spot = spotArrayList.get( position );
+        SpotModel spot = spotArrayList.get( position );
 
         holder.authorIV.setImageDrawable( res.getDrawable( R.drawable.default_spot )  );
         holder.authorUsername.setText( "rabiixx");
@@ -92,8 +92,8 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         return spotArrayList.size();
     }
 
-    public void add( final int position, final SpotModal spotModal ) {
-        spotArrayList.add( position, spotModal );
+    public void add( final int position, final SpotModel spotModel ) {
+        spotArrayList.add( position, spotModel );
         notifyItemInserted( position );
     }
 

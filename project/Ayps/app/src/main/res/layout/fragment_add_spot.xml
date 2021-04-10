@@ -16,10 +16,10 @@
 
         <!-- Spot Image -->
         <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            tools:src="@drawable/spotgh_logo" />
+            android:id="@+id/spot_img"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            tools:src="@drawable/default_spot" />
 
         <!-- Spot Title -->
         <com.google.android.material.textfield.TextInputLayout

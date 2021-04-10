@@ -1,8 +1,12 @@
 <component name="ProjectDictionaryState">
   <dictionary name="User">
     <words>
+      <w>cognito</w>
       <w>cognitoauth</w>
+      <w>firestore</w>
       <w>geocoding</w>
+      <w>mapbox</w>
+      <w>spotgrambucket</w>
     </words>
   </dictionary>
 </component>

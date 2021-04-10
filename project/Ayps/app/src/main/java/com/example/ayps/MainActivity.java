@@ -11,8 +11,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.amplifyframework.api.rest.RestOptions;
 import com.amplifyframework.core.Amplify;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -22,6 +24,19 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String PREF_PASSWORD = "password";
     private static final String PREF_NAME = "user-info";
     private static final String SECURE_KEY = "password";
+
+
 
     // Secure shared preferences
     private static SecurePreferences preferences;
@@ -95,14 +112,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Initialize Amplify
         amplifySetup = AmplifySetup.getInstance( getApplicationContext() );
-        amplifySetup.setUp();
+        amplifySetup.setUp( getApplicationContext() );
 
         // Initialize shared preferences
         preferences = new SecurePreferences( getApplicationContext(), PREF_NAME, SECURE_KEY, true);
 
         //amplifySignOut();
         //googleSignOut();
-
 
         checkLogin();
 
@@ -184,9 +200,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                            error -> Log.e("AuthDemo3", "Failed to fetch user attributes.", error)
 //                    );
 
-//                    MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
-//                    finish();
                     Log.i("signin", result.isSignInComplete() ? "Amplify sign in succeeded: " + Amplify.Auth.getCurrentUser().getUsername() : "Sign in not complete");
+                    MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
+                    finish();
                 },
                 error -> Log.e("signin", error.toString())
         );
@@ -277,7 +293,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void checkLogin() {
 
-
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         account = GoogleSignIn.getLastSignedInAccount(this );
@@ -290,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if ( account != null ) {
             Log.i("checkUserLogin", "User already logged in with google");
+            Log.i("debug", "User profile img: " + account.getPhotoUrl() );
             MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
             finish();
         }

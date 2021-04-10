@@ -49,7 +49,6 @@ import androidx.core.content.ContextCompat;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import timber.log.Timber;
 
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
@@ -386,11 +385,11 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
 
                 @Override
                 public void onFailure(Call<GeocodingResponse> call, Throwable throwable) {
-                    Timber.e("Geocoding Failure: %s", throwable.getMessage());
+                    //Timber.e("Geocoding Failure: %s", throwable.getMessage());
                 }
             });
         } catch (ServicesException servicesException) {
-            Timber.e("Error geocoding: %s", servicesException.toString());
+            //Timber.e("Error geocoding: %s", servicesException.toString());
             servicesException.printStackTrace();
         }
     }

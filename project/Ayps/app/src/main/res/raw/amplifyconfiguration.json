@@ -1,19 +1,6 @@
 {
     "UserAgent": "aws-amplify-cli/2.0",
     "Version": "1.0",
-    "api": {
-        "plugins": {
-            "awsAPIPlugin": {
-                "SpotgramAPI": {
-                    "endpointType": "REST",
-                    "endpoint": "https://v66ebnuzkk.execute-api.eu-central-1.amazonaws.com/test",
-                    "region": "eu-central-1",
-                    "authorizationType": "API_KEY",
-                    "apiKey": "v66ebnuzkk"
-                }
-            }
-        }
-    },
     "auth": {
         "plugins": {
             "awsCognitoAuthPlugin": {
@@ -21,15 +8,6 @@
                 "Version": "0.1.0",
                 "IdentityManager": {
                     "Default": {}
-                },
-                "AppSync": {
-                    "Default": {
-                        "ApiUrl": "https://pc4ln4axurcdtmuad22aa3ktnq.appsync-api.eu-central-1.amazonaws.com/graphql",
-                        "Region": "eu-central-1",
-                        "AuthMode": "API_KEY",
-                        "ApiKey": "da2-zqt3nwutyja27evu5dlf23jg2y",
-                        "ClientDatabasePrefix": "aypsapi_API_KEY"
-                    }
                 },
                 "CredentialsProvider": {
                     "CognitoIdentity": {

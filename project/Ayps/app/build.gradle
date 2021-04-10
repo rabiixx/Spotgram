@@ -1,11 +1,12 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 android {
     signingConfigs {
         debug {
-            storeFile file('C:\\Users\\Ruben\\Documents\\Spotgram\\project\\keystores\\spotgram.keystore')
+            storeFile file('C:\\Users\\User\\Documents\\GitHub\\Spotgram\\project\\keystores\\spotgram.keystore')
             storePassword 'android'
             keyAlias 'key0'
             keyPassword 'android'
@@ -31,10 +32,12 @@ android {
         }
     }
     compileOptions {
+
         // Support for Java 8 features
         coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+
     }
 }
 
@@ -43,22 +46,33 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.navigation:navigation-fragment:2.2.2'
-    implementation 'androidx.navigation:navigation-ui:2.2.2'
+    implementation 'androidx.navigation:navigation-fragment:2.3.4'
+    implementation 'androidx.navigation:navigation-ui:2.3.4'
+    implementation 'com.google.firebase:firebase-storage:19.1.1'
+    implementation 'com.google.firebase:firebase-firestore:22.1.2'
 
     // Testing Dependencies
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+
+    /**
+     * AMPLIFY DEPENDENCIES START
+     */
+
     // Amplify core dependency
-    implementation 'com.amplifyframework:core:1.16.13'
+    implementation 'com.amplifyframework:core:1.17.1'
 
     // Amplify AWS Api dependency
-    implementation 'com.amplifyframework:aws-api:1.16.13'
+    implementation 'com.amplifyframework:aws-api:1.17.1'
 
     // Amplify AWS Auth Cognito
-    implementation 'com.amplifyframework:aws-auth-cognito:1.16.13'
+    implementation 'com.amplifyframework:aws-auth-cognito:1.17.1'
+
+    /**
+     * AMPLIFY DEPENDENCIES END
+     */
 
     // Support for Java 8 features
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
@@ -78,9 +92,6 @@ dependencies {
     // Java SDK 5.6.0 Services Package ( Geocoding )
     implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:5.6.0'
 
-    // Timber Logger API
-    implementation 'com.jakewharton.timber:timber:4.7.1'
-
     // Material Chips Input
     implementation 'com.github.pchmn:MaterialChipsInput:1.0.8'
 
@@ -93,6 +104,10 @@ dependencies {
 
     // For control over item selection of both touch and mouse driven selection
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0"
+
+    // Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 
 }
 

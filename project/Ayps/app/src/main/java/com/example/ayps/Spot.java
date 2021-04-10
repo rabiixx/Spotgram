@@ -14,7 +14,7 @@ import org.json.JSONObject;
 public class Spot {
 
 
-    public void getSpot(final String id ) {
+    public void getSpot( final String id ) {
 
         final String path = "/spot/" + id;
 
@@ -38,16 +38,9 @@ public class Spot {
                 .addBody( data )
                 .build();
 
+
         Amplify.API.post(options,
-                response -> {
-                    try {
-                        JSONObject jsonObject2 = response.getData().asJSONObject();
-                        Log.i("MyAmplifyApp", jsonObject2.toString());
-                        Log.i("MyAmplifyApp", "POST succeeded: " + response.getData().asJSONObject());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                },
+                response -> Log.i("MyAmplifyApp", "POST succeeded: " + response),
                 error -> Log.e("MyAmplifyApp", "POST failed.", error)
         );
 
