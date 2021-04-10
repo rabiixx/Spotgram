@@ -90,8 +90,6 @@ public class SignUp extends AppCompatActivity implements View.OnFocusChangeListe
 
     }
 
-
-
     @Override
     public void onFocusChange( View v, boolean hasFocus ) {
 
@@ -118,6 +116,15 @@ public class SignUp extends AppCompatActivity implements View.OnFocusChangeListe
                 result -> Log.i("AuthQuickStart", "Result: " + result.toString()),
                 error -> Log.e("AuthQuickStart", "Sign up failed", error)
         );
+
+
+    }
+
+    /**
+     * Insert user data into firestore
+     */
+    private void createUserFirestore( ) {
+
     }
 
     private void confirmSignUp() {

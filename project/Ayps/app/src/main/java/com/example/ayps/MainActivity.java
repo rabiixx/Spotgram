@@ -15,6 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.amplifyframework.api.rest.RestOptions;
+import com.amplifyframework.auth.AuthProvider;
+import com.amplifyframework.auth.AuthUser;
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -48,8 +51,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String PREF_PASSWORD = "password";
     private static final String PREF_NAME = "user-info";
     private static final String SECURE_KEY = "password";
-
-
 
     // Secure shared preferences
     private static SecurePreferences preferences;
@@ -210,18 +211,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void googleSignIn() {
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder( GoogleSignInOptions.DEFAULT_SIGN_IN )
+        /*GoogleSignInOptions gso = new GoogleSignInOptions.Builder( GoogleSignInOptions.DEFAULT_SIGN_IN )
                 .requestEmail()
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso );
 
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        startActivityForResult(signInIntent, RC_SIGN_IN);*/
+
+        Amplify.Auth.signInWithSocialWebUI(AuthProvider.google(), this,
+                result -> Log.i("AuthQuickstart", result.toString()),
+                error -> Log.e("AuthQuickstart", error.toString())
+        );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AWSCognitoAuthPlugin.WEB_UI_SIGN_IN_ACTIVITY_CODE) {
+            Amplify.Auth.handleWebUISignInResponse(data);
+
+            Amplify.Auth.fetchUserAttributes(
+                    onSuccess -> {
+                        Log.i("debug", onSuccess.toString() );
+                    },
+                    onError -> {
+
+                    }
+            );
+
+            /*Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);*/
+
+        }
     }
 
 
-    @Override
+    /*@Override
     public void onActivityResult( int requestCode, int resultCode, Intent data ) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -229,13 +257,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
-    }
+    }*/
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
 
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
 
             assert account != null;
             final String msg = "Sign in successful: " + account.getEmail();
@@ -299,8 +326,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if ( Amplify.Auth.getCurrentUser() != null ) {
             Log.i("checkUserLogin", "User already logged in with amplify");
+            AuthUser authuser = Amplify.Auth.getCurrentUser();
+
+            Log.i("checkUserLogin", "username: " + authuser.getUsername());
+            Log.i("checkUserLogin", "userid: " + authuser.getUserId());
+
+            Log.i("checkUserLogin", "user data: " + authuser.toString());
+
             MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
             finish();
+            return;
         }
 
         if ( account != null ) {
@@ -308,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.i("debug", "User profile img: " + account.getPhotoUrl() );
             MainActivity.this.startActivity( new Intent( MainActivity.this, MainActivity2.class ) );
             finish();
+            return;
         }
 
         Log.i("checkUserLogin", "User not logged in");

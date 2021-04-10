@@ -41,6 +41,8 @@
             </intent-filter>
         </activity>
 
+
+
         <!-- File Provider for saving captured images -->
         <provider
             android:name="androidx.core.content.FileProvider"
