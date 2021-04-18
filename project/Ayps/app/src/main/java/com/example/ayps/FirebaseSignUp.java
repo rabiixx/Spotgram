@@ -8,6 +8,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,8 +29,11 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,6 +44,11 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
     private FirebaseAuth mAuth;
 
     private FirebaseUser currentUser;
+
+    FirebaseStorage storage;
+
+    StorageReference defaultProfileImgRef;
+
 
     // Logger TAG
     private static final String TAG = FirebaseSignUp.class.getName();
@@ -105,7 +114,6 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
     /**
      * Layout elements End
      */
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -117,6 +125,17 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+
+        /*if ( mAuth.getCurrentUser() != null ) {
+            FirebaseSignUp.this.startActivity( new Intent( FirebaseSignUp.this, HomeActivity.class ) );
+            finish();
+        }
+*/
+        // Initialize Firestore
+        storage = FirebaseStorage.getInstance();
+
+        // Default profile image reference
+        defaultProfileImgRef = storage.getReference("/images/profile/defavatar.png");
 
         // Initialize input validator
         inputValidator = InputValidator.getInstance();
@@ -130,7 +149,24 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
         inputEmail.setOnFocusChangeListener( this );
         inputUsername.setOnFocusChangeListener( this );
         inputPassword.setOnFocusChangeListener( this );
+    }
 
+    @Override
+    public void onClick(View v) {
+
+        if ( v.getId() == R.id.sign_up ) {
+
+            if (    inputValidator.validateEmail( inputEmail.getText().toString(), emailLayout )
+                    && inputValidator.validateUsername( inputUsername.getText().toString(), usernameLayout )
+                    && inputValidator.validatePassword( inputPassword.getText().toString(), passwordLayout ) ) {
+
+                signUp();
+            }
+
+        } else if ( v.getId() == R.id.sign_in_link ) {
+            FirebaseSignUp.this.startActivity( new Intent( FirebaseSignUp.this, FirebaseSignIn.class ) );
+            finish();
+        }
     }
 
     /**
@@ -144,14 +180,9 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Log.i(TAG, "User: " + user.getDisplayName() );
+                            currentUser = mAuth.getCurrentUser();
 
-                            addUser();
-
-//                            FirebaseSignUp.this.startActivity( new Intent( FirebaseSignUp.this, MainActivity2.class ) );
-//                            finish();
+                            updateProfile();
 
                         } else {
                             Log.w(TAG, "createUserWithEmail:failure", task.getException() );
@@ -175,6 +206,73 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    private void addUser() {
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        User user = new User(
+                currentUser.getUid(),
+                inputUsername.getText().toString(),
+                currentUser.getEmail(),
+                currentUser.getPhotoUrl().toString(),
+                "firebase"
+                );
+
+        db.collection("users")
+                .document( currentUser.getUid() )
+                .set( user )
+                .addOnSuccessListener( new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot added. " );
+                        FirebaseSignUp.this.startActivity( new Intent( FirebaseSignUp.this, HomeActivity.class ) );
+                        finish();
+                    }
+                })
+                .addOnFailureListener( new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e.getCause());
+                    }
+                });
+    }
+
+
+    public void updateProfile() {
+
+        defaultProfileImgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+
+                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                        .setDisplayName(inputUsername.getText().toString())
+                        .setPhotoUri( uri )
+                        .build();
+
+                currentUser.updateProfile(profileUpdates)
+                        .addOnCompleteListener( new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d(TAG, "User profile updated.");
+                                    addUser();
+                                }
+                            }
+                        });
+
+            }
+        }).addOnFailureListener (new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i(TAG, "Profile update failure: " + e.getMessage() );
+            }
+        });
+
+
+    }
+
+
+
     // Clears focus from EditTexts when touching outside
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -192,51 +290,5 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
             }
         }
         return super.dispatchTouchEvent( event );
-    }
-
-
-
-    private void addUser() {
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        User user = new User(
-                currentUser.getUid(),
-                inputUsername.getText().toString(),
-                currentUser.getEmail(),
-                "defavatar.png"
-                );
-
-        db.collection("users")
-                .add( user )
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e.getCause());
-                    }
-                });
-    }
-
-    @Override
-    public void onClick(View v) {
-        if ( v.getId() == R.id.sign_up ) {
-
-            if (    inputValidator.validateEmail( inputEmail.getText().toString(), emailLayout )
-                    && inputValidator.validateUsername( inputUsername.getText().toString(), usernameLayout )
-                    && inputValidator.validatePassword( inputPassword.getText().toString(), passwordLayout ) ) {
-
-                signUp();
-            }
-
-        } else if ( v.getId() == R.id.sign_in_link ) {
-            FirebaseSignUp.this.startActivity( new Intent( FirebaseSignUp.this, FirebaseSignIn.class ) );
-            finish();
-        }
     }
 }

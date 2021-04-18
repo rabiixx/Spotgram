@@ -27,6 +27,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -99,7 +100,7 @@ public class ExploreFragment extends Fragment {
         // if end of spot list reached, load new spots
         spotListRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged( RecyclerView recyclerView, int newState ) {
+            public void onScrollStateChanged(@NotNull RecyclerView recyclerView, int newState ) {
                 super.onScrollStateChanged( recyclerView, newState );
 
                 if (!recyclerView.canScrollVertically(1)) {

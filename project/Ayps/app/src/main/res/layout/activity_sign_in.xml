@@ -42,13 +42,14 @@
                 android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Email Label -->
+        <!-- Password Field -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
+            app:boxStrokeWidth="2dp"
             app:endIconMode="password_toggle"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:errorEnabled="true">
@@ -62,9 +63,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
-
-        <!-- Signup Button -->
+        <!-- Sign In Button -->
         <Button
             android:id="@+id/email_sign_in"
             android:layout_width="fill_parent"
@@ -75,8 +74,7 @@
             android:padding="12dp"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             app:backgroundTint="#ffc048"
-            android:textColor="@color/black"
-            app:elevation="2dp"
+            android:textColor="#2d3436"
             />
 
         <View
@@ -99,52 +97,6 @@
             android:gravity="center"
             android:textSize="16sp"/>
 
-        <!-- Sign Out Button -->
-        <Button
-            android:id="@+id/email_sign_out"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Email/Pwd Sign Out"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="24dp"
-            android:padding="12dp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            app:backgroundTint="#ffc048"
-            android:textColor="@color/black"
-            app:elevation="2dp"
-            />
-
-        <Button
-            android:id="@+id/google_sign_out"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Google Sign Out"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="24dp"
-            android:padding="12dp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            app:backgroundTint="#ffc048"
-            android:textColor="@color/black"
-            app:elevation="2dp"
-            />
-
-
-        <!-- Check Sign In Btn -->
-        <Button
-            android:id="@+id/check_login"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Check Login"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="24dp"
-            android:padding="12dp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            app:backgroundTint="#ffc048"
-            android:textColor="@color/black"
-            app:elevation="2dp"
-            />
-
     </LinearLayout>
-
 
 </ScrollView>

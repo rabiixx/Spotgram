@@ -14,7 +14,7 @@
     <string name="location_picker_select_location_button_select">Select a location</string>
     <string name="location_picker_dropped_marker_snippet_no_results">No results</string>
     <string name="location_picker_place_name_result">Place name: %1$s</string>
-    <string name="title_activity_main3">MainActivity</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

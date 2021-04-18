@@ -49,7 +49,7 @@ public class HomeActivity extends AppCompatActivity {
                             openFragments( AddSpotFragment.newInstance( "", "" ) );
                             return true;
                         case R.id.profile:
-                            openFragments( ProfileFragment.newInstance( "", "" ) );
+                            openFragments( ProfileFragment.newInstance() );
                             return true;
                     }
 

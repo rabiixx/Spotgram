@@ -68,11 +68,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import okio.GzipSink;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AddSpotFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG_PARAM1 = "param1";
@@ -174,7 +169,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-
         // Add tag to chip group
         tagsLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,10 +201,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                         uploadPicture( view, imgUUID );
                     }
 
-                    GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireContext() );
-                    if ( account != null ) {
-                        Log.i("debug", "User profile img: " + account.getPhotoUrl() );
-                    }
 
                     Timestamp timestamp = new Timestamp( new Date() );
                     Log.i("debug", "Timestamp: " + timestamp.toString() );
@@ -561,8 +551,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
                     }
                 });
-
-
 
         /*Uri photoURI = FileProvider.getUriForFile( requireContext(),
                 "com.example.ayps.fileprovider",

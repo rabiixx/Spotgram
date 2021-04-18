@@ -10,6 +10,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.play.core.tasks.OnCompleteListener;
 import com.google.android.play.core.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -29,6 +31,9 @@ import java.util.Map;
 public class SpotModel {
 
     static private final String TAG = SpotModel.class.getName();
+
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String spotId;
@@ -207,6 +212,10 @@ public class SpotModel {
         this.tags = tags;
         this.userId = userId;
         this.username = username;
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
     }
 
 
@@ -231,13 +240,16 @@ public class SpotModel {
         spot.put("username", this.username);
         spot.put("created_at", new Timestamp( new Date() ) );
 
+        Log.i(TAG, "Userid: " + currentUser.getUid());
+
         // Add a new document with a generated ID
-        db.collection("spots")
+        db.collection("users").document( currentUser.getUid() )
+                .collection("spots")
                 .add(spot)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                .addOnSuccessListener( new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess( DocumentReference documentReference ) {
-                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId());
+                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId() );
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

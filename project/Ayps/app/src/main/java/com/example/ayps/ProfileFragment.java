@@ -26,6 +26,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -43,14 +46,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ProfileFragment extends Fragment implements View.OnClickListener {
 
-    // Google SignIn Client
-    GoogleSignInClient mGoogleSignInClient;
+    private static final String TAG = ProfileFragment.class.getName();
 
-    GoogleSignInAccount account;
+    // Firebase auth
+    private FirebaseAuth mAuth;
 
-    // FIREBASE
-    private FirebaseStorage storage;
-    private StorageReference storageRef;
+    private FirebaseUser currentUser;
+
+    // Google Sign In client
+    private GoogleSignInClient mGoogleSignInClient;
 
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.spot_list )
@@ -66,33 +70,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @BindView( R.id.profile_img )
     CircleImageView profileImg;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    public ProfileFragment() {}
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public ProfileFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProfileFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProfileFragment newInstance(String param1, String param2) {
+    public static ProfileFragment newInstance() {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -100,10 +82,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -114,30 +92,23 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this, view);
 
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
 
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
-
-        /*StorageReference storageReference = storageRef.child( "images/0debff2f-1aea-4b5a-88d8-bbeafd5dec3e" );
-
-        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Log.i("firebase", "URI: " + uri.toString() );
-                Picasso.get().load( uri.toString() ).into( profileImg );
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.i("firebase", "Error obtaining picture url: " + e.getCause() );
-            }
-        });*/
-
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireContext() );
-        if ( account != null ) {
-            Picasso.get().load( account.getPhotoUrl() ).into( profileImg );
+        if ( currentUser == null ) {
+            ProfileFragment.this.startActivity( new Intent( requireContext(), FirebaseSignIn.class ) );
         }
 
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
+
+        // Load user profile picture
+        Picasso.get().load( currentUser.getPhotoUrl() ).into( profileImg );
 
         signOutBtn.setOnClickListener( this );
 
@@ -164,37 +135,50 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
 
         if ( v.getId() == R.id.sign_out ) {
-            signOut();
+
+            for ( UserInfo user : currentUser.getProviderData() ) {
+
+                Log.d(TAG, "Provider: " + user.getProviderId() );
+
+                if  ( user.getProviderId().equals("firebase") ) {
+                    googleSignOut();
+                } else if ( user.getProviderId().equals("google.com") ) {
+                    emailPasswordSignOut();
+                }
+
+                ProfileFragment.this.startActivity( new Intent( requireContext(), FirebaseSignIn.class ) );
+                getActivity().finish();
+
+            }
+
         }
 
     }
 
-    private void signOut() {
-
-        account = GoogleSignIn.getLastSignedInAccount( getActivity().getApplicationContext() );
-
-        if ( account != null ) {
-
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder( GoogleSignInOptions.DEFAULT_SIGN_IN )
-                    .requestEmail()
-                    .build();
-
-            mGoogleSignInClient = GoogleSignIn.getClient( getActivity().getApplicationContext(), gso );
-
-            mGoogleSignInClient.signOut()
-                    .addOnCompleteListener( getActivity(), new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Log.i("signout", "Google sign out succesfully completed.");
-//                            startActivity( new Intent( getActivity(), MainActivity.class ) );
-//                            getActivity().finish();
-                        }
-                    });
-        }
-
-
+    /**
+     * Email/Password sign out
+     */
+    private void emailPasswordSignOut() {
+        mAuth.signOut();
     }
 
+    /**
+     * Google provider sign out
+     */
+    private void googleSignOut() {
+
+        // Firebase sign out
+        mAuth.signOut();
+
+        // Google sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(requireActivity(),
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "Google user logged out successfully");
+                    }
+                });
+    }
 
 
 }

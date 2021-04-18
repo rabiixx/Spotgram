@@ -24,11 +24,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AdditionalUserInfo;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -38,16 +40,15 @@ import butterknife.ButterKnife;
 public class FirebaseSignIn extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener
 {
 
+    private static final String TAG = FirebaseSignIn.class.getName();
     private static final int RC_SIGN_IN = 501;
 
-    private static final String TAG = FirebaseSignIn.class.getName();
+    private FirebaseFirestore db;
 
-    FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
     // Data validator
     InputValidator inputValidator;
-
-    private FirebaseAuth mAuth;
 
     // Google Sign In client
     private GoogleSignInClient mGoogleSignInClient;
@@ -79,18 +80,6 @@ public class FirebaseSignIn extends AppCompatActivity implements View.OnClickLis
     SignInButton googleSignInBtn;
 
     @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.email_sign_out )
-    Button emailSignOutBtn;
-
-    @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.google_sign_out )
-    Button googleSignOutBtn;
-
-    @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.check_login )
-    Button checkLoginBtn;
-
-    @SuppressLint("NonConstantResourceId")
     @BindView( R.id.sign_up_link )
     TextView signUpLink;
 
@@ -120,24 +109,21 @@ public class FirebaseSignIn extends AppCompatActivity implements View.OnClickLis
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
-        // onClick listener
+        // Fields listeners
+        inputEmail.setOnFocusChangeListener( this );
+        inputPassword.setOnFocusChangeListener( this );
+
+        // Buttons listeners
         emailSignInBtn.setOnClickListener( this );
         googleSignInBtn.setOnClickListener( this );
 
-        emailSignOutBtn.setOnClickListener( this );
-        googleSignOutBtn.setOnClickListener( this );
-
         signUpLink.setOnClickListener( this );
-        checkLoginBtn.setOnClickListener( this );
-
-        // onFocusChange listener
-        inputEmail.setOnFocusChangeListener( this );
-        inputPassword.setOnFocusChangeListener( this );
 
     }
 
     @Override
     public void onStart() {
+
         super.onStart();
 
         currentUser = mAuth.getCurrentUser();
@@ -166,12 +152,6 @@ public class FirebaseSignIn extends AppCompatActivity implements View.OnClickLis
         } else if ( v.getId() == R.id.sign_up_link ) {
             FirebaseSignIn.this.startActivity( new Intent( FirebaseSignIn.this, FirebaseSignUp.class ) );
             finish();
-        } else if ( v.getId() == R.id.email_sign_out ) {
-            emailSignOut();
-        } else if ( v.getId() == R.id.google_sign_out ) {
-            googleSignOut();
-        } else if ( v.getId() == R.id.check_login ) {
-            checkSignIn();
         }
 
     }
@@ -187,12 +167,6 @@ public class FirebaseSignIn extends AppCompatActivity implements View.OnClickLis
 
     }
 
-
-    private void googleSignIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
     private void emailSignIn() {
 
         mAuth.signInWithEmailAndPassword(inputEmail.getText().toString().trim(), inputPassword.getText().toString().trim())
@@ -203,23 +177,26 @@ public class FirebaseSignIn extends AppCompatActivity implements View.OnClickLis
 
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            currentUser = mAuth.getCurrentUser();
+                            Log.d(TAG, "Sing in provider: " + currentUser.getProviderId() );
 
-
-//                            FirebaseSignIn.this.startActivity( new Intent( FirebaseSignIn.this, MainActivity2.class ) );
-//                            finish();
+                            FirebaseSignIn.this.startActivity( new Intent( FirebaseSignIn.this, HomeActivity.class ) );
+                            finish();
 
                         } else {
-                            // If sign in fails, display a message to the user.
-//                            Error error = Error.EMAIL_SING_IN_FAILED;
 
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(FirebaseSignIn.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-//                            updateUI(null);
+
                         }
                     }
                 });
+    }
+
+    private void googleSignIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     @Override
@@ -251,11 +228,20 @@ public class FirebaseSignIn extends AppCompatActivity implements View.OnClickLis
                         if (task.isSuccessful()) {
 
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            Log.d(TAG, "signInWithGoogle:success");
+                            currentUser = mAuth.getCurrentUser();
 
-//                            FirebaseSignIn.this.startActivity( new Intent( FirebaseSignIn.this, MainActivity2.class ) );
-//                            finish();
+                            // Is user sign in for first time, register user
+                            if ( task.getResult().getAdditionalUserInfo().isNewUser() ) {
+                                addUser();
+                            }
+
+
+
+                            Log.d(TAG, "Sing in provider: " + currentUser.getProviderId() );
+
+                            FirebaseSignIn.this.startActivity( new Intent( FirebaseSignIn.this, HomeActivity.class ) );
+                            finish();
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -267,36 +253,33 @@ public class FirebaseSignIn extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    private void addUser() {
 
+        FirebaseUser currentUser = mAuth.getCurrentUser();
 
-    private void googleSignOut() {
+        User user = new User(
+                currentUser.getUid(),
+                currentUser.getDisplayName(),
+                currentUser.getEmail(),
+                currentUser.getPhotoUrl().toString(),
+                "google.com"
+        );
 
-        FirebaseAuth.getInstance().signOut();
-
-        mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
+        db.collection("users")
+                .document( currentUser.getUid() )
+                .set( user )
+                .addOnSuccessListener( new OnSuccessListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d(TAG, "Google user logged out successfully");
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot added. " );
+                    }
+                })
+                .addOnFailureListener( new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e.getCause());
                     }
                 });
     }
-
-    private void emailSignOut() {
-        FirebaseAuth.getInstance().signOut();
-    }
-
-    private void checkSignIn( ) {
-        currentUser = mAuth.getCurrentUser();
-        if ( currentUser != null ) {
-            Log.d(TAG, "Provider: " + currentUser.getProviderId());
-            Log.d(TAG, "Provider: " + currentUser.getProviderData());
-
-            Log.d(TAG, "User logged in");
-        } else {
-            Log.d(TAG, "User not logged in");
-        }
-    }
-
 
 }
