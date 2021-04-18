@@ -104,7 +104,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     private Double latitude;
     private Double longitude;
 
-
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.input_title) TextInputEditText inputTitle;
     @SuppressLint("NonConstantResourceId")
@@ -155,16 +154,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            String mParam1 = getArguments().getString(ARG_PARAM1);
-            String mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
     }
 
     @Override
@@ -402,6 +391,7 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     };
 
     public void loadProfileImage() {
+
         final CharSequence[] options = { "Hacer Foto", "Escoger desde la galeria", "Cancelar" };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -551,7 +541,7 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
         Uri uri = Uri.fromFile( new File( spotImgPath ) );
 
-        StorageReference storageReference = storageRef.child("images/" + uuid );
+        StorageReference storageReference = storageRef.child( "images/spots" + uuid );
         storageReference.putFile( uri ).
                 addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override

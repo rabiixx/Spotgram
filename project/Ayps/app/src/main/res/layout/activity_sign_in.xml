@@ -11,8 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="56dp"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp">
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp">
 
         <ImageView android:src="@drawable/spotgh_logo"
             android:layout_width="wrap_content"
@@ -44,25 +44,6 @@
 
         <!-- Email Label -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/username_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:errorEnabled="true" >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_username"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Username"
-                android:inputType="text"/>
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Email Label -->
-        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,11 +66,60 @@
 
         <!-- Signup Button -->
         <Button
-            android:id="@+id/submit"
+            android:id="@+id/email_sign_in"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Create Account"
-            android:layout_marginTop="24dp"
+            android:text="Sign In"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            app:backgroundTint="#ffc048"
+            android:textColor="@color/black"
+            app:elevation="2dp"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_sign_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"/>
+
+        <!-- Sign Up link-->
+        <TextView android:id="@+id/sign_up_link"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="You don't have an account? Sign up"
+            android:gravity="center"
+            android:textSize="16sp"/>
+
+        <!-- Sign Out Button -->
+        <Button
+            android:id="@+id/email_sign_out"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Email/Pwd Sign Out"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            app:backgroundTint="#ffc048"
+            android:textColor="@color/black"
+            app:elevation="2dp"
+            />
+
+        <Button
+            android:id="@+id/google_sign_out"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Google Sign Out"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="24dp"
             android:padding="12dp"
             style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -99,22 +129,13 @@
             />
 
 
-        <TextView android:id="@+id/link_login"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:text="Already a member? Login"
-            android:gravity="center"
-            android:textSize="16sp"/>
-
-
-        <!-- Signup Button -->
+        <!-- Check Sign In Btn -->
         <Button
-            android:id="@+id/logout"
+            android:id="@+id/check_login"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="logout"
-            android:layout_marginTop="24dp"
+            android:text="Check Login"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="24dp"
             android:padding="12dp"
             style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -124,4 +145,6 @@
             />
 
     </LinearLayout>
+
+
 </ScrollView>

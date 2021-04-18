@@ -186,25 +186,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Log.i("signout", "Google sign out succesfully completed.");
-                            startActivity( new Intent( getActivity(), MainActivity.class ) );
-                            getActivity().finish();
+//                            startActivity( new Intent( getActivity(), MainActivity.class ) );
+//                            getActivity().finish();
                         }
                     });
         }
 
-
-        if ( Amplify.Auth.getCurrentUser() != null ) {
-
-            Amplify.Auth.signOut(
-                    () -> {
-                        Log.i("signout", "Amplify sign out successfully completed.");
-                        startActivity( new Intent( getActivity(), MainActivity.class ) );
-                        getActivity().finish();
-                    },
-                    error -> Log.e("signout", error.toString())
-            );
-
-        }
 
     }
 

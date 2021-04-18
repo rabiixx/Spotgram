@@ -11,44 +11,24 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/spotgh_logo"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Ayps">
-
-        <activity android:name=".FirebaseSignUp">
+        <activity android:name=".FirebaseSignIn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".FirebaseSignUp" />
         <activity android:name=".MapBoxTest" />
-
-        <activity android:name=".MainActivity2" />
-
+        <activity android:name=".HomeActivity" />
         <activity android:name=".ConfirmSignUp" />
-
         <activity android:name=".SignUp" />
-
-        <activity android:name=".MainActivity">
-        </activity>
-
-        <!-- Amplify Social SignIn -->
-        <activity android:name="com.amazonaws.mobileconnectors.cognitoauth.activities.CustomTabsRedirectActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="ayps" />
-            </intent-filter>
-        </activity>
-
         <!-- File Provider for saving captured images -->
         <provider
             android:name="androidx.core.content.FileProvider"

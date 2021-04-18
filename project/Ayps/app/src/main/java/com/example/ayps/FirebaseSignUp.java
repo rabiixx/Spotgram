@@ -21,25 +21,34 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FirebaseSignUp extends AppCompatActivity  implements View.OnFocusChangeListener {
+public class FirebaseSignUp extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
 
     // Firebase auth
     private FirebaseAuth mAuth;
+
+    private FirebaseUser currentUser;
 
     // Logger TAG
     private static final String TAG = FirebaseSignUp.class.getName();
 
     // Input data validator Singleton
     InputValidator inputValidator;
+
+    // Firestore
+    FirebaseFirestore db;
 
     // Secure shared preferences
     private static SecurePreferences preferences;
@@ -86,8 +95,12 @@ public class FirebaseSignUp extends AppCompatActivity  implements View.OnFocusCh
     TextInputLayout confirmPasswordLayout;
 
     @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.submit )
-    Button submitBtn;
+    @BindView( R.id.sign_up )
+    Button signUpBtn;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.sign_in_link )
+    TextView signInLink;
 
     /**
      * Layout elements End
@@ -108,20 +121,16 @@ public class FirebaseSignUp extends AppCompatActivity  implements View.OnFocusCh
         // Initialize input validator
         inputValidator = InputValidator.getInstance();
 
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
+
+        signInLink.setOnClickListener( this );
+        signUpBtn.setOnClickListener( this );
+
         inputEmail.setOnFocusChangeListener( this );
         inputUsername.setOnFocusChangeListener( this );
         inputPassword.setOnFocusChangeListener( this );
 
-        submitBtn.setOnClickListener(v -> {
-
-            if (    inputValidator.validateEmail( inputEmail.getText().toString(), emailLayout )
-                    && inputValidator.validateUsername( inputUsername.getText().toString(), usernameLayout )
-                    && inputValidator.validatePassword( inputPassword.getText().toString(), passwordLayout ) ) {
-
-                signUp();
-            }
-
-        });
     }
 
     /**
@@ -134,15 +143,19 @@ public class FirebaseSignUp extends AppCompatActivity  implements View.OnFocusCh
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             Log.i(TAG, "User: " + user.getDisplayName() );
-                            FirebaseSignUp.this.startActivity( new Intent( FirebaseSignUp.this, MainActivity2.class ) );
-                            finish();
+
+                            addUser();
+
+//                            FirebaseSignUp.this.startActivity( new Intent( FirebaseSignUp.this, MainActivity2.class ) );
+//                            finish();
 
                         } else {
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(FirebaseSignUp.this, "Authentication failed.",
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException() );
+                            Toast.makeText(FirebaseSignUp.this, "Authentication failed: " + task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -179,5 +192,51 @@ public class FirebaseSignUp extends AppCompatActivity  implements View.OnFocusCh
             }
         }
         return super.dispatchTouchEvent( event );
+    }
+
+
+
+    private void addUser() {
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        User user = new User(
+                currentUser.getUid(),
+                inputUsername.getText().toString(),
+                currentUser.getEmail(),
+                "defavatar.png"
+                );
+
+        db.collection("users")
+                .add( user )
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e.getCause());
+                    }
+                });
+    }
+
+    @Override
+    public void onClick(View v) {
+        if ( v.getId() == R.id.sign_up ) {
+
+            if (    inputValidator.validateEmail( inputEmail.getText().toString(), emailLayout )
+                    && inputValidator.validateUsername( inputUsername.getText().toString(), usernameLayout )
+                    && inputValidator.validatePassword( inputPassword.getText().toString(), passwordLayout ) ) {
+
+                signUp();
+            }
+
+        } else if ( v.getId() == R.id.sign_in_link ) {
+            FirebaseSignUp.this.startActivity( new Intent( FirebaseSignUp.this, FirebaseSignIn.class ) );
+            finish();
+        }
     }
 }
