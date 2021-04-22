@@ -4,10 +4,26 @@
     package="com.example.ayps"
     android:usesCleartextTraffic="true"
     tools:targetApi="m">
+    <!-- Since API Level 30, package visibility has changed and its necessary to declare queries -->
+    <queries>
+
+        <!-- Camera -->
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -17,6 +33,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Ayps">
+        <activity android:name=".MyRecyclerView"></activity>
+        <activity android:name=".UserProfile" />
+        <activity android:name=".CaptureImage" />
         <activity android:name=".FirebaseSignIn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,12 +46,10 @@
         <activity android:name=".FirebaseSignUp" />
         <activity android:name=".MapBoxTest" />
         <activity android:name=".HomeActivity" />
-        <activity android:name=".ConfirmSignUp" />
-        <activity android:name=".SignUp" />
-        <!-- File Provider for saving captured images -->
+        <activity android:name=".ConfirmSignUp" /> <!-- File Provider for saving captured images -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.ayps.fileprovider"
+            android:authorities="com.example.ayps.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

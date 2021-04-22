@@ -7,10 +7,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -22,10 +30,11 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
     private ArrayList<SpotModel> spotArrayList;
     private LayoutInflater mInflater;
-
+    Context context;
 
     // Constructor
     public SpotAdapter(Context context, ArrayList<SpotModel> spotArrayList ) {
+        this.context = context;
         this.mInflater = LayoutInflater.from( context );
         this.spotArrayList = spotArrayList;
     }
@@ -41,6 +50,11 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         @BindView(R.id.author_username)
         TextView authorUsername;
 
+        // Post data
+        @SuppressLint("NonConstantResourceId")
+        @BindView(R.id.spot_img)
+        ImageView spotImg;
+
         @SuppressLint("NonConstantResourceId")
         @BindView(R.id.spot_num_likes)
         TextView spotNumLikes;
@@ -53,6 +67,10 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         @BindView(R.id.spot_desc)
         TextView spotDesc;
 
+        @SuppressLint("NonConstantResourceId")
+        @BindView(R.id.like_icon)
+        CheckBox likeIcon;
+
         public ViewHolder( @NonNull View itemView ) {
             super( itemView );
             ButterKnife.bind( this, itemView );
@@ -63,28 +81,57 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
     @NonNull
     @Override
     public SpotAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         View view = LayoutInflater.from( parent.getContext() ).inflate( R.layout.spot_list_item, parent,false );
+
         view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         int width = view.getMeasuredWidth();
         int height = view.getMeasuredHeight();
         Log.i("debug", "Height: " + height );
+
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull SpotAdapter.ViewHolder holder, int position) {
 
-        Resources res = holder.itemView.getContext().getResources();
+//        Resources res = holder.itemView.getContext().getResources();
+
+        holder.likeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                int tmp = Integer.parseInt( holder.spotNumLikes.getText().toString() );
+
+                if ( holder.likeIcon.isChecked() ) {
+                    holder.spotNumLikes.setText( String.valueOf( tmp + 1 ) );
+                } else {
+                    holder.spotNumLikes.setText( String.valueOf( tmp - 1 ) );
+                }
+            }
+        });
 
         SpotModel spot = spotArrayList.get( position );
 
-        holder.authorIV.setImageDrawable( res.getDrawable( R.drawable.default_spot )  );
-        holder.authorUsername.setText( "rabiixx");
+        holder.authorUsername.setText( spot.getAuthorUsername() );
+        RequestOptions options = new RequestOptions()
+                .centerCrop()
+                .placeholder(R.mipmap.ic_launcher_round)
+                .error(R.mipmap.ic_launcher_round);
+
+
+        Glide.with( context ).load( spot.getAuthorProfileImg() ).apply(options).into( holder.authorIV );
+
 
         holder.spotTitle.setText( spot.getTitle() );
         holder.spotDesc.setText( spot.getDescription() );
         holder.spotNumLikes.setText( String.valueOf( spot.getNumLikes() ) );
 
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference( spot.getSpotImg() );
+
+        Glide.with( context )
+                .load( storageReference )
+                .into( holder.spotImg );
     }
 
     @Override

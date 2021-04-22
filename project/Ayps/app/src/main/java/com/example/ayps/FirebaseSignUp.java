@@ -49,7 +49,6 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
 
     StorageReference defaultProfileImgRef;
 
-
     // Logger TAG
     private static final String TAG = FirebaseSignUp.class.getName();
 

@@ -2,23 +2,16 @@ package com.example.ayps;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
-
-import com.amplifyframework.api.rest.RestOptions;
-import com.amplifyframework.api.rest.RestResponse;
-import com.amplifyframework.core.Amplify;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,13 +21,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -85,7 +74,7 @@ public class ExploreFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_explore, container, false);
-        ButterKnife.bind(this, view);
+        ButterKnife.bind(this, view );
 
         // Initialize Firestore database
         db = FirebaseFirestore.getInstance();
@@ -185,11 +174,39 @@ public class ExploreFragment extends Fragment {
                             adapter.notifyDataSetChanged();
 
                         }
-
-
-
                     }
                 });
+    }
+
+
+    public void getSpotList() {
+
+        final String collectionPath = "spots";
+        final String orderField = "created_at";
+        final int limit = 5;
+
+        db.collection( collectionPath )
+                .orderBy( orderField )
+                .limit( limit )
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent( @Nullable QuerySnapshot value,
+                                         @Nullable FirebaseFirestoreException e ) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        List<String> cities = new ArrayList<>();
+                        for ( QueryDocumentSnapshot doc : value ) {
+                            if ( doc.get("title") != null ) {
+                                cities.add(doc.getString("name"));
+                            }
+                        }
+                        Log.d(TAG, "Current cites in CA: " + cities);
+                    }
+                });
+
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.ayps;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -7,24 +8,19 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.play.core.tasks.OnCompleteListener;
-import com.google.android.play.core.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,8 +37,9 @@ public class SpotModel {
     // Post data
     private String title;
     private String description;
-    private int numLikes;
     private String spotImg;
+    private Timestamp created_at;
+    private int numLikes = 0;
 
     // Spot location data
     private String placeName;
@@ -55,11 +52,163 @@ public class SpotModel {
     private String tags;
 
     // Post author data
-    private String userId;
-    private String username;
+    private String authorId;
+    private String authorUsername;
+    private String authorProfileImg;
 
-    private Timestamp created_at;
 
+    public SpotModel() { }
+
+    public SpotModel(String title, String description, String spotImg,
+                     String placeName, String locality, String place, String region,
+                     String country, String latitude, String longitude, String tags,
+                     String authorId, String authorUsername, String authorProfileImg ) {
+
+        this.title = title;
+        this.description = description;
+        this.spotImg = spotImg;
+
+        // MapBox
+        this.placeName = placeName;
+        this.locality = locality;
+        this.place = place;
+        this.region = region;
+        this.country = country;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.tags = tags;
+
+        // Author
+        this.authorId = authorId;
+        this.authorUsername = authorUsername;
+        this.authorProfileImg = authorProfileImg;
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+    }
+
+    /**
+     * Add spot document
+     */
+    public void addSpot() {
+
+        Map<String, Object> spot = new HashMap<>();
+
+        // Post
+        spot.put("title", this.title);
+        spot.put("description", this.description);
+        spot.put("spotImg", this.spotImg);
+        spot.put("numLikes", this.numLikes);
+        spot.put("created_at", new Timestamp( new Date() ) );
+
+        // MapBox
+        spot.put("placeName", this.placeName);
+        spot.put("locality", this.locality);
+        spot.put("place", this.place);
+        spot.put("region", this.region);
+        spot.put("country", this.country);
+        spot.put("latitude", this.latitude);
+        spot.put("longitude", this.longitude);
+        spot.put("tags", this.tags);
+
+        // Author
+        spot.put("authorId", this.authorId);
+        spot.put("authorUsername", this.authorUsername);
+        spot.put("authorProfileImg", this.authorProfileImg);
+
+        // Add a new document with a generated ID
+        db.collection("users").document( currentUser.getUid() )
+                .collection("spots")
+                .add(spot)
+                .addOnSuccessListener( new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess( DocumentReference documentReference ) {
+                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId() );
+
+                        db.collection("spots")
+                                .document( documentReference.getId() )
+                                .set( spot )
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId() );
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w( "debug", "Error adding document", e);
+                    }
+                });
+    }
+
+    public void getSpotList() {
+
+        final String collectionPath = "spots";
+        final String orderField = "created_at";
+        final int limit = 5;
+
+
+        db.collection( collectionPath )
+                .orderBy( orderField )
+                .limit( limit )
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent( @Nullable QuerySnapshot value,
+                                         @Nullable FirebaseFirestoreException e ) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        List<String> cities = new ArrayList<>();
+                        for ( QueryDocumentSnapshot doc : value ) {
+                            if ( doc.get("title") != null ) {
+                                cities.add(doc.getString("name"));
+                            }
+                        }
+                        Log.d(TAG, "Current cites in CA: " + cities);
+                    }
+                });
+
+       }
+
+
+    public static String getTAG() {
+        return TAG;
+    }
+
+    public FirebaseAuth getmAuth() {
+        return mAuth;
+    }
+
+    public void setmAuth(FirebaseAuth mAuth) {
+        this.mAuth = mAuth;
+    }
+
+    public FirebaseUser getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(FirebaseUser currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public FirebaseFirestore getDb() {
+        return db;
+    }
+
+    public void setDb(FirebaseFirestore db) {
+        this.db = db;
+    }
 
     public String getSpotId() {
         return spotId;
@@ -85,20 +234,28 @@ public class SpotModel {
         this.description = description;
     }
 
-    public int getNumLikes() {
-        return numLikes;
-    }
-
-    public void setNumLikes(int numLikes) {
-        this.numLikes = numLikes;
-    }
-
     public String getSpotImg() {
         return spotImg;
     }
 
     public void setSpotImg(String spotImg) {
         this.spotImg = spotImg;
+    }
+
+    public Timestamp getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(Timestamp created_at) {
+        this.created_at = created_at;
+    }
+
+    public int getNumLikes() {
+        return numLikes;
+    }
+
+    public void setNumLikes(int numLikes) {
+        this.numLikes = numLikes;
     }
 
     public String getPlaceName() {
@@ -165,132 +322,23 @@ public class SpotModel {
         this.tags = tags;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getAuthorUsername() {
+        return authorUsername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setAuthorUsername(String authorUsername) {
+        this.authorUsername = authorUsername;
     }
 
-    public Timestamp getCreated_at() {
-        return created_at;
+    public String getAuthorProfileImg() {
+        return authorProfileImg;
     }
-
-    public void setCreated_at(Timestamp created_at) {
-        this.created_at = created_at;
-    }
-
-    public SpotModel() {
-
-    }
-
-    public SpotModel(String title, String description, int numLikes, String spotImg,
-                     String placeName, String locality, String place, String region,
-                     String country, String latitude, String longitude, String tags,
-                     String userId, String username ) {
-
-        this.title = title;
-        this.description = description;
-        this.numLikes = numLikes;
-        this.spotImg = spotImg;
-        this.placeName = placeName;
-        this.locality = locality;
-        this.place = place;
-        this.region = region;
-        this.country = country;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.tags = tags;
-        this.userId = userId;
-        this.username = username;
-
-        mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
-
-    }
-
-
-    /**
-     * Add spot document
-     */
-    public void addSpot() {
-
-        Map<String, Object> spot = new HashMap<>();
-        spot.put("title", this.title);
-        spot.put("description", this.description);
-        spot.put("numLikes", this.numLikes);
-        spot.put("placeName", this.placeName);
-        spot.put("locality", this.locality);
-        spot.put("place", this.place);
-        spot.put("region", this.region);
-        spot.put("country", this.country);
-        spot.put("latitude", this.latitude);
-        spot.put("longitude", this.longitude);
-        spot.put("tags", this.tags);
-        spot.put("userId", this.userId);
-        spot.put("username", this.username);
-        spot.put("created_at", new Timestamp( new Date() ) );
-
-        Log.i(TAG, "Userid: " + currentUser.getUid());
-
-        // Add a new document with a generated ID
-        db.collection("users").document( currentUser.getUid() )
-                .collection("spots")
-                .add(spot)
-                .addOnSuccessListener( new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess( DocumentReference documentReference ) {
-                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId() );
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w( "debug", "Error adding document", e);
-                    }
-                });
-    }
-
-    public void getSpotList() {
-
-        final String collectionPath = "spots";
-        final String orderField = "created_at";
-        final int limit = 5;
-
-
-        db.collection( collectionPath )
-                .orderBy( orderField )
-                .limit( limit )
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent( @Nullable QuerySnapshot value,
-                                         @Nullable FirebaseFirestoreException e ) {
-                        if (e != null) {
-                            Log.w(TAG, "Listen failed.", e);
-                            return;
-                        }
-
-                        List<String> cities = new ArrayList<>();
-                        for ( QueryDocumentSnapshot doc : value ) {
-                            if ( doc.get("title") != null ) {
-                                cities.add(doc.getString("name"));
-                            }
-                        }
-                        Log.d(TAG, "Current cites in CA: " + cities);
-                    }
-                });
-
-
-
-       }
-
 }

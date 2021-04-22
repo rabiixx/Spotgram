@@ -2,14 +2,13 @@ package com.example.ayps;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Instrumentation;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,65 +28,67 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
-import com.amplifyframework.auth.AuthUser;
-import com.amplifyframework.core.Amplify;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okio.GzipSink;
 
 public class AddSpotFragment extends Fragment implements View.OnClickListener {
+
+    private static final String TAG = AddSpotFragment.class.getName();
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final int RESULT_OK = -1;
 
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int CAMERA_PERMISSION_CODE = 12;
+
+    private Bitmap mImageBitmap;
+    private String mCurrentPhotoPath = "";
+
     private static final int mapboxRequestCode = 203;
-    private static final int CAMERA_REQUEST_CODE = 1;
     private static final int GALLERY_REQUEST_CODE = 2;
 
     private static final int READ_STORAGE_PERMISSION_CODE = 501;
-    private static final int CAMERA_PERMISSION_CODE = 48;
 
-    private File spotImg = null;
-    private String spotImgPath = "";
-
+    // Firebase Storage
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private StorageReference uploadedImgRef;
 
-    private JSONObject postData;
+    // Firebase Authentication
+    FirebaseAuth mAuth;
+    FirebaseUser currentUser;
+
+    // Captured Image UUID
+    private String imgUUID = "";
+    private String uplodadImgUrl = "";
+
     private ArrayList<String> tags = new ArrayList<>();
 
     // MapBox Geocode Data
@@ -129,19 +130,8 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     @BindView( R.id.spot_img )
     ImageView spotImgIV;
 
-    public AddSpotFragment() {
-        // Required empty public constructor
-    }
+    public AddSpotFragment() { }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddSpotFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static AddSpotFragment newInstance( String param1, String param2 ) {
         AddSpotFragment fragment = new AddSpotFragment();
         Bundle args = new Bundle();
@@ -158,8 +148,20 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_add_spot, container, false);
         ButterKnife.bind(this, view);
 
+        // Firebase Storage Initialization
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
+
+        //  Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
+        if ( currentUser == null ){
+            Intent intent = new Intent( requireContext(), FirebaseSignIn.class );
+            startActivity( intent );
+            getActivity().finish();
+        }
 
         // Open select location map activity
         placeLayout.setEndIconOnClickListener( new View.OnClickListener() {
@@ -193,23 +195,19 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                         && validateInput( inputTitle.getText().toString() )
                 ) {
 
-                    String imgUUID;
-                    if ( spotImgPath.equals("") ) {
-                        imgUUID = "no-img";
-                    } else {
+                    if ( mCurrentPhotoPath != null && !mCurrentPhotoPath.equals("") ) {
                         imgUUID = UUID.randomUUID().toString();
-                        uploadPicture( view, imgUUID );
+                        try {
+                            uploadPicture();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
-
-
-                    Timestamp timestamp = new Timestamp( new Date() );
-                    Log.i("debug", "Timestamp: " + timestamp.toString() );
 
                     SpotModel spotModel = new SpotModel(
                             inputTitle.getText().toString().trim(),
                             inputDescription.getText().toString().trim(),
-                            0,
-                            imgUUID,
+                            "images/spots/" + imgUUID + ".jpg",
                             placeName,
                             locality,
                             place,
@@ -218,16 +216,24 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                             String.valueOf( latitude ),
                             String.valueOf( longitude ),
                             tags.toString(),
-                            "rabiixx",
-                            "rabiixx"
+                            currentUser.getUid(),
+                            currentUser.getDisplayName(),
+                            currentUser.getPhotoUrl().toString()
                     );
 
                     // Upload Spot to FireStore Database
                     spotModel.addSpot();
 
+                    ExploreFragment exploreFragment = new ExploreFragment();
+
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace( ( (ViewGroup) getView().getParent()).getId() , exploreFragment, "findThisFragment")
+                            .addToBackStack(null)
+                            .commit();
+
+                    ( (HomeActivity) getActivity() ).bottomNavigationView.setSelectedItemId( R.id.explore );
 
                 }
-
             }
         });
 
@@ -251,7 +257,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         return df.format(c);
 
     }
-
 
     private boolean validateInput( final String data ) {
 
@@ -280,7 +285,7 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == AddSpotFragment.RESULT_OK ) {
+        if ( resultCode == AddSpotFragment.RESULT_OK ) {
             switch (requestCode) {
 
                 case AddSpotFragment.mapboxRequestCode:
@@ -297,18 +302,25 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                     inputPlace.setText( data.getStringExtra( "placeName") );
                     break;
 
-                case CAMERA_REQUEST_CODE:
+                case REQUEST_IMAGE_CAPTURE:
 
-//                    Bitmap photo = (Bitmap) data.getExtras().get("data");
-//                    spotImgIV.setImageBitmap(photo);
+                    Log.i(TAG, "OnActivityResult:CAMERA");
+                    Log.i(TAG, "ImageUrl: " + mCurrentPhotoPath );
 
-                    Bitmap mImageBitmap;
+                    ImageDecoder.Source source = ImageDecoder.createSource(requireActivity().getContentResolver(), Uri.parse( "file:" + mCurrentPhotoPath ));
                     try {
-                        mImageBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), Uri.parse( spotImgPath ) );
-                        spotImgIV.setImageBitmap(mImageBitmap);
+                        Bitmap bitmap = ImageDecoder.decodeBitmap(source);
+                        spotImgIV.setImageBitmap( bitmap );
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
+                    /*try {
+                        mImageBitmap = MediaStore.Images.Media.getBitmap( requireActivity().getContentResolver(), Uri.parse("file:" + mCurrentPhotoPath));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    spotImgIV.setImageBitmap(mImageBitmap);*/
 
                     break;
 
@@ -329,10 +341,10 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                     String imgPath = cursor.getString( columnIndex );
                     cursor.close();
 
-                    spotImg = new File( imgPath );
+                    File spotImg = new File(imgPath);
 
                     try {
-                        Bitmap b = BitmapFactory.decodeStream( new FileInputStream( spotImg ) );
+                        Bitmap b = BitmapFactory.decodeStream( new FileInputStream(spotImg) );
                         spotImgIV.setImageBitmap( b );
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -341,6 +353,8 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                     break;
             }
 
+        } else {
+            Log.i(TAG, "Result is not ok");
         }
     }
 
@@ -382,13 +396,11 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
     public void loadProfileImage() {
 
-        final CharSequence[] options = { "Hacer Foto", "Escoger desde la galeria", "Cancelar" };
+        final CharSequence[] options = { "Hacer Foto", "Escoger desde galeria", "Cancelar" };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Escoge tu foto de perfil");
-//                .setIcon(R.drawable.ic_camera_24dp);
-//        builder.setIconAttribute("gravity=center_vertical", R.drawable.ic_camera_24dp);
-//        builder.setIcon(R.drawable.ic_camera_24dp);
+//                setIcon(R.drawable.ic_camera_36);
 
         builder.setItems(options, new DialogInterface.OnClickListener() {
 
@@ -407,7 +419,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
                         ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_PERMISSION_CODE);
                     } else {
-                        Log.i("AddSpotFragments", "captureFromCamera()" );
                         captureFromCamera();
                     }
 
@@ -429,12 +440,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    /**
-     * After requesting permissions, initializes camera or gallery
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
@@ -454,11 +459,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    /**
-     * Check if all required permissions are granted
-     * @param grantResults
-     * @return
-     */
     public boolean hasAllPermissionsGranted(@NonNull int[] grantResults) {
         for (int grantResult : grantResults) {
             if (grantResult == PackageManager.PERMISSION_DENIED) {
@@ -470,29 +470,30 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
     private void captureFromCamera() {
 
-        Intent takePictureIntent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
+        Log.i(TAG, "Capture from camera");
 
-        if ( takePictureIntent.resolveActivity( requireActivity().getPackageManager()) != null) {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (cameraIntent.resolveActivity( getActivity().getPackageManager()) != null) {
 
+            // Create the File where the photo should go
             File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
+                // Error occurred while creating the File
                 ex.printStackTrace();
+                Log.i(TAG, "IOException: " + ex.getCause() );
             }
 
-            if ( photoFile != null ) {
-
-                Uri photoURI = FileProvider.getUriForFile( requireContext(),
-                        "com.example.ayps.fileprovider",
-                        photoFile );
-
-
-                takePictureIntent.putExtra( MediaStore.EXTRA_OUTPUT, photoURI );
-                startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(requireContext(), requireContext().getPackageName() + ".provider", photoFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI );
+                startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }
+
 
     private void captureFromGallery() {
 
@@ -506,54 +507,59 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         startActivityForResult(intent, GALLERY_REQUEST_CODE);
     }
 
-    /**
-     * Creates an image file
-     * @return File
-     * @throws IOException
-     */
-    private File createImageFile() throws IOException {
+    private void uploadPicture() throws FileNotFoundException {
 
-        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-
-        String imageFileName = "JPEG_" + timeStamp + "_";
-
-        File storageDir = requireActivity().getExternalFilesDir( Environment.DIRECTORY_PICTURES );
-
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-
-        spotImgPath  = image.getAbsolutePath();
-
-        return image;
-    }
+        Uri uri = Uri.fromFile( new File( Uri.decode( mCurrentPhotoPath ) ) );
 
 
-    private void uploadPicture( View view, String uuid ) {
+        Log.i(TAG, "Uri: " + uri.toString() );
 
-        Uri uri = Uri.fromFile( new File( spotImgPath ) );
+//        InputStream inputStream = new FileInputStream( new File(mCurrentPhotoPath) );
+        StorageReference storageReference = storageRef.child( "images/spots/" + imgUUID + ".jpg" );
+        UploadTask uploadTask = storageReference.putFile( uri );
 
-        StorageReference storageReference = storageRef.child( "images/spots" + uuid );
-        storageReference.putFile( uri ).
-                addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        uploadTask
+                .addOnSuccessListener( new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         Log.i("firebase", "Picture uploaded successfully");
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
+                .addOnFailureListener( new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.i("firebase", "Picture upload failure");
                     }
                 })
-                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                .addOnProgressListener( new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
 
                     }
                 });
-
-        /*Uri photoURI = FileProvider.getUriForFile( requireContext(),
-                "com.example.ayps.fileprovider",
-                new File( spotImgPath ) );*/
     }
+
+    private File createImageFile() throws IOException {
+
+        // Create an image file name
+        @SuppressLint("SimpleDateFormat")
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        String imageFileName = "JPEG_" + timeStamp + "_";
+
+        File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+
+        return image;
+    }
+
+
 }

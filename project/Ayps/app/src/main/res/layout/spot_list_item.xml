@@ -46,6 +46,7 @@
 
             <!-- Media -->
             <ImageView
+                android:id="@+id/spot_img"
                 android:layout_width="match_parent"
                 android:layout_height="194dp"
                 app:srcCompat="@drawable/default_spot"
@@ -59,7 +60,7 @@
             android:orientation="horizontal">
 
                 <CheckBox
-                    android:id="@+id/likeIcon"
+                    android:id="@+id/like_icon"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:button="@null"
@@ -77,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginLeft="10dp"
-                    android:text="2.342"
+                    android:text="0"
                     android:textSize="16dp"
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:layout_marginTop="16dp"/>

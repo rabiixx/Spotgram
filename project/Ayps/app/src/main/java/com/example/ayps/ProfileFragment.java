@@ -2,7 +2,6 @@ package com.example.ayps;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,25 +9,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.amplifyframework.core.Amplify;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -48,6 +51,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = ProfileFragment.class.getName();
 
+    // Firestore
+    private FirebaseFirestore db;
+
     // Firebase auth
     private FirebaseAuth mAuth;
 
@@ -66,6 +72,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     Button signOutBtn;
 
     // Layout Components
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.username )
+    TextView username;
+
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.profile_img )
     CircleImageView profileImg;
@@ -95,6 +105,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
+
         if ( currentUser == null ) {
             ProfileFragment.this.startActivity( new Intent( requireContext(), FirebaseSignIn.class ) );
         }
@@ -107,29 +120,64 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
 
-        // Load user profile picture
-        Picasso.get().load( currentUser.getPhotoUrl() ).into( profileImg );
+        loadUserProfile();
+
+        getUserSpots( view );
 
         signOutBtn.setOnClickListener( this );
 
-        ArrayList<SpotModal> spotArrayList = new ArrayList<>();
-
-        SpotModal spotModal = new SpotModal("title", "desc", "placeName", "locality",
-                "place", "region", "country", "latitude",
-                "longitude", "rabiixx12", "tags", 0);
-
-        spotArrayList.add( spotModal );
-        spotArrayList.add( spotModal );
-        spotArrayList.add( spotModal );
-
-        SpotGalleryAdapter adapter = new SpotGalleryAdapter( getActivity().getApplicationContext(), spotArrayList );
-        // LinearLayoutManager llm = new LinearLayoutManager(getActivity().getApplicationContext(), RecyclerView.VERTICAL, false );
-
-        spotListRV.setLayoutManager( new GridLayoutManager( view.getContext(), 3 ) );
-        spotListRV.setAdapter( adapter );
-
+//         LinearLayoutManager llm = new LinearLayoutManager(getActivity().getApplicationContext(), RecyclerView.VERTICAL, false );
         return view;
     }
+
+    private void getUserSpots( View view ) {
+
+        final String collectionPath = "users";
+        final String orderField = "created_at";
+        final int limit = 6;
+
+        Log.i(TAG, "getUserSpots()" );
+
+        db.collection( collectionPath )
+                .document( currentUser.getUid() )
+                .collection( "spots" )
+                .orderBy( orderField )
+                .limit( limit )
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent( @Nullable QuerySnapshot value,
+                                         @Nullable FirebaseFirestoreException e ) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        ArrayList<String> spotsImgsRefs = new ArrayList<>();
+                        for ( QueryDocumentSnapshot doc : value ) {
+                            Log.i(TAG, doc.getString("spotImg") );
+                            spotsImgsRefs.add( doc.getString( "spotImg" ) );
+                        }
+                        Log.i(TAG, "Spots size: " + spotsImgsRefs.size() );
+
+                        SpotGalleryAdapter adapter = new SpotGalleryAdapter( requireContext(), spotsImgsRefs );
+                        spotListRV.setLayoutManager( new GridLayoutManager( view.getContext(), 3 ) );
+                        spotListRV.setAdapter( adapter );
+
+                    }
+                });
+
+    }
+
+    private void loadUserProfile() {
+
+        Glide.with( requireContext() )
+                .load( currentUser.getPhotoUrl().toString() )
+                .into( profileImg );
+
+        username.setText( currentUser.getDisplayName() );
+
+    }
+
 
     @Override
     public void onClick(View v) {
