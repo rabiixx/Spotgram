@@ -4,11 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class ConfirmSignUp extends AppCompatActivity {
+public class ImportDataFirestore extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_confirm_sign_up);
+        setContentView(R.layout.activity_import_data_firestore);
     }
 }
