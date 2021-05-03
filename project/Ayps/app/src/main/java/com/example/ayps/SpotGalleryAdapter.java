@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +28,8 @@ public class SpotGalleryAdapter extends RecyclerView.Adapter<SpotGalleryAdapter.
     private Context context;
     private ArrayList<String> spotsImgsRefs;
     private LayoutInflater mInflater;
+
+
 
     // Constructor
     public SpotGalleryAdapter(Context context, ArrayList<String> spotsImgsRefs ) {
@@ -47,6 +50,7 @@ public class SpotGalleryAdapter extends RecyclerView.Adapter<SpotGalleryAdapter.
         }
 
     }
+
 
     @NonNull
     @Override

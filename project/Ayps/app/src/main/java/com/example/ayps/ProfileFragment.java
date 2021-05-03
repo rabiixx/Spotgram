@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -126,7 +127,32 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         signOutBtn.setOnClickListener( this );
 
-//         LinearLayoutManager llm = new LinearLayoutManager(getActivity().getApplicationContext(), RecyclerView.VERTICAL, false );
+        // Recycler view on item click listener
+        spotListRV.addOnItemTouchListener(
+                new RecyclerItemClickListener( requireContext(), spotListRV, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        Log.i(TAG, "onItemClick detected at " + position + " position."  );
+
+                        // Open SpotList fragment
+//                        ( (HomeActivity) requireActivity() ).bottomNavigationView.setSelectedItemId( R.id.fra );
+//                    ProfileSpotListFragment fragment = new ProfileSpotListFragment();
+
+                        ProfileSpotListFragment fragment = ProfileSpotListFragment.newInstance( position );
+                        requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace( ( (ViewGroup) getView().getParent()).getId(), fragment, "4" )
+                            .addToBackStack(null)
+                            .commit();
+
+
+
+                    }
+
+                    @Override public void onLongItemClick(View view, int position) {
+                        Log.i(TAG, "onLongItemClick detected at " + position + " position."  );
+                    }
+                })
+        );
+
         return view;
     }
 
@@ -135,8 +161,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         final String collectionPath = "users";
         final String orderField = "created_at";
         final int limit = 6;
-
-        Log.i(TAG, "getUserSpots()" );
 
         db.collection( collectionPath )
                 .document( currentUser.getUid() )
@@ -154,10 +178,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
                         ArrayList<String> spotsImgsRefs = new ArrayList<>();
                         for ( QueryDocumentSnapshot doc : value ) {
-                            Log.i(TAG, doc.getString("spotImg") );
+//                            Log.i(TAG, doc.getString("spotImg") );
                             spotsImgsRefs.add( doc.getString( "spotImg" ) );
                         }
-                        Log.i(TAG, "Spots size: " + spotsImgsRefs.size() );
 
                         SpotGalleryAdapter adapter = new SpotGalleryAdapter( requireContext(), spotsImgsRefs );
                         spotListRV.setLayoutManager( new GridLayoutManager( view.getContext(), 3 ) );
@@ -198,9 +221,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 getActivity().finish();
 
             }
-
         }
-
     }
 
     /**

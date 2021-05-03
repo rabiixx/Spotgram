@@ -25,6 +25,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/spotgh_logo"
@@ -32,10 +33,11 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Ayps">
-        <activity android:name=".MyRecyclerView"></activity>
+        android:theme="@style/Theme.Ayps"
+        android:screenOrientation="portrait">
+        <activity android:name=".ImportDataFirestore"/>
+        <activity android:name=".MyRecyclerView" />
         <activity android:name=".UserProfile" />
-        <activity android:name=".CaptureImage" />
         <activity android:name=".FirebaseSignIn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,8 +47,8 @@
         </activity>
         <activity android:name=".FirebaseSignUp" />
         <activity android:name=".MapBoxTest" />
-        <activity android:name=".HomeActivity" />
-        <activity android:name=".ConfirmSignUp" /> <!-- File Provider for saving captured images -->
+        <activity android:name=".HomeActivity"
+            android:screenOrientation="portrait"/> <!-- File Provider for saving captured images -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.ayps.provider"

@@ -27,6 +27,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -49,6 +51,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -224,14 +227,28 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                     // Upload Spot to FireStore Database
                     spotModel.addSpot();
 
-                    ExploreFragment exploreFragment = new ExploreFragment();
+                    AddSpotFragment addSpotFragment = new AddSpotFragment();
+
+//                    getActivity().getSupportFragmentManager()
 
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace( ( (ViewGroup) getView().getParent()).getId() , exploreFragment, "findThisFragment")
-                            .addToBackStack(null)
+                            .remove( ( (HomeActivity) requireActivity() ).addSpotFragment )
                             .commit();
 
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .add( ( (ViewGroup) getView().getParent()).getId() , addSpotFragment )
+                            .hide( addSpotFragment )
+                            .commit();
+
+                    ( (HomeActivity) requireActivity() ).addSpotFragment = addSpotFragment;
+                    ( (HomeActivity) requireActivity() ).active = ( (HomeActivity) requireActivity() ).addSpotFragment;
+
                     ( (HomeActivity) getActivity() ).bottomNavigationView.setSelectedItemId( R.id.explore );
+
+                    /*getActivity().getSupportFragmentManager().beginTransaction()
+                            .remove( getActivity().getSupportFragmentManager().findFragmentByTag("2") )
+                            .commit();*/
+
 
                 }
             }
@@ -303,9 +320,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                     break;
 
                 case REQUEST_IMAGE_CAPTURE:
-
-                    Log.i(TAG, "OnActivityResult:CAMERA");
-                    Log.i(TAG, "ImageUrl: " + mCurrentPhotoPath );
 
                     ImageDecoder.Source source = ImageDecoder.createSource(requireActivity().getContentResolver(), Uri.parse( "file:" + mCurrentPhotoPath ));
                     try {
@@ -407,11 +421,9 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
             @SuppressLint("IntentReset")
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                Log.i("debug", "click");
 
                 if (options[item].equals("Hacer Foto")) {
 
-                    Log.i("debug", "foto");
 
                     /* Check for Granted Permissions */
                     if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
@@ -427,7 +439,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                     if ( ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions( requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_STORAGE_PERMISSION_CODE);
                     } else {
-                        Log.i("AddSpotFragment", "captureFromGallery" );
                         captureFromGallery();
                     }
 
@@ -446,7 +457,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if ( hasAllPermissionsGranted(grantResults) ) {
-            Log.i("debug", "estamos dentro julio");
 
             if (requestCode == CAMERA_PERMISSION_CODE ) {
                 captureFromCamera();
@@ -454,8 +464,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                 captureFromGallery();
             }
 
-        } else {
-            Log.i("debug", "estamos fuera julio");
         }
     }
 
@@ -469,8 +477,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     }
 
     private void captureFromCamera() {
-
-        Log.i(TAG, "Capture from camera");
 
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (cameraIntent.resolveActivity( getActivity().getPackageManager()) != null) {
@@ -510,9 +516,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
     private void uploadPicture() throws FileNotFoundException {
 
         Uri uri = Uri.fromFile( new File( Uri.decode( mCurrentPhotoPath ) ) );
-
-
-        Log.i(TAG, "Uri: " + uri.toString() );
 
 //        InputStream inputStream = new FileInputStream( new File(mCurrentPhotoPath) );
         StorageReference storageReference = storageRef.child( "images/spots/" + imgUUID + ".jpg" );

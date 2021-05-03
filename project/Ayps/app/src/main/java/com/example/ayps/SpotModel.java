@@ -56,7 +56,6 @@ public class SpotModel {
     private String authorUsername;
     private String authorProfileImg;
 
-
     public SpotModel() { }
 
     public SpotModel(String title, String description, String spotImg,

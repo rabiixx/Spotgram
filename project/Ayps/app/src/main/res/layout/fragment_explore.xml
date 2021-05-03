@@ -5,11 +5,9 @@
     android:layout_height="match_parent"
     tools:context=".ExploreFragment">
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/spot_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
 
 </LinearLayout>

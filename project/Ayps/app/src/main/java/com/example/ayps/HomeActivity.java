@@ -3,10 +3,12 @@ package com.example.ayps;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
@@ -14,13 +16,17 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
 
+    private static final String TAG = HomeActivity.class.getName();
+
     BottomNavigationView bottomNavigationView;
 
-    private ViewPager2 viewPager2;
+    ExploreFragment exploreFragment = new ExploreFragment();
+    AddSpotFragment addSpotFragment = new AddSpotFragment();
+    ProfileFragment profileFragment = new ProfileFragment();
+//    ProfileSpotListFragment profileSpotListFragment = new ProfileSpotListFragment();
 
-    ExploreFragment exploreFragment;
-    AddSpotFragment addSpotFragment;
-    ProfileFragment profileFragment;
+    final FragmentManager fm = getSupportFragmentManager();
+    Fragment active = exploreFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,82 +35,61 @@ public class HomeActivity extends AppCompatActivity {
         setContentView( R.layout.home_layout );
 
         bottomNavigationView = findViewById( R.id.bottom_navigation );
-        viewPager2 = findViewById( R.id.viewpager2 );
 
         bottomNavigationView.setOnNavigationItemSelectedListener( navigationItemSelectedListener );
-//        openFragments( ExploreFragment.newInstance() );
 
+        fm.beginTransaction().add(R.id.container, profileFragment, "3").hide(profileFragment).commit();
+        fm.beginTransaction().add(R.id.container, addSpotFragment, "2").hide(addSpotFragment).commit();
+        fm.beginTransaction().add(R.id.container, exploreFragment, "1").commit();
+//        fm.beginTransaction().add(R.id.container, profileSpotListFragment, "4").commit();
 
-        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-
-                switch (position) {
-                    case 0:
-                        bottomNavigationView.getMenu().findItem( R.id.explore ).setChecked(true);
-                        break;
-                    case 1:
-                        bottomNavigationView.getMenu().findItem( R.id.add_spot ).setChecked(true);
-                        break;
-                    case 2:
-                        bottomNavigationView.getMenu().findItem( R.id.profile ).setChecked(true);
-                        break;
-                }
-            }
-        });
-
-        setupViewPager(viewPager2);
+        //        openFragments( ExploreFragment.newInstance() );
 
     }
 
-    public void openFragments( Fragment fragment ) {
+    /*public void openFragments( Fragment fragment ) {
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace( R.id.container, fragment );
         transaction.addToBackStack( null );
         transaction.commit();
 
-    }
+    }*/
 
     BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                    switch ( item.getItemId() ) {
-                        case R.id.explore:
-                            viewPager2.setCurrentItem(0, false);
-                            break;
-//                            openFragments( ExploreFragment.newInstance() );
-//                            return true;
-                        case R.id.add_spot:
-                            viewPager2.setCurrentItem(1, false);
-                            break;
-//                            openFragments( AddSpotFragment.newInstance( "", "" ) );
-//                            return true;
-                        case R.id.profile:
-                            viewPager2.setCurrentItem(2, false);
-//                            openFragments( ProfileFragment.newInstance() );
-//                            return true;
+                    if ( item.getItemId() == R.id.explore ) {
+                        Log.i(TAG, "ExploreFragment selected");
+                        fm.beginTransaction().hide(active).show(exploreFragment).commit();
+                        active = exploreFragment;
+                        return true;
+                    } else if ( item.getItemId() == R.id.add_spot ) {
+
+                        Log.i(TAG, "AddSpotFragement selected");
+                        if ( fm.findFragmentByTag("2") == null ) {
+                            Log.i(TAG, "AddSporFragment does not exits");
+                            addSpotFragment = new AddSpotFragment();
+                            fm.beginTransaction().hide(active).commit();
+                            fm.beginTransaction().add(R.id.container, addSpotFragment, "1").commit();
+                        } else {
+                            Log.i(TAG, "AddSporFragment does exist");
+                            fm.beginTransaction().hide(active).show(addSpotFragment).commit();
+                        }
+
+                        active = addSpotFragment;
+                        return true;
+                    } else if ( item.getItemId() == R.id.profile) {
+                        Log.i(TAG, "ProfileFragment selected");
+                        fm.beginTransaction().hide(active).show(profileFragment).commit();
+                        active = profileFragment;
+                        return true;
                     }
                     return false;
                 }
             };
 
-    private void setupViewPager( ViewPager2 viewPager ) {
-
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), getLifecycle());
-
-        exploreFragment = new ExploreFragment();
-        addSpotFragment = new AddSpotFragment();
-        profileFragment = new ProfileFragment();
-
-        adapter.addFragment( exploreFragment );
-        adapter.addFragment( addSpotFragment );
-        adapter.addFragment( profileFragment );
-
-        viewPager.setAdapter(adapter);
-    }
 
 }

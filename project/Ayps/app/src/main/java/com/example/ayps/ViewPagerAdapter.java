@@ -16,6 +16,10 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         super(fragmentManager,b);
     }
 
+    public void removeFragment( int i ) {
+        mFragmentList.remove( i );
+    }
+
     public void addFragment(Fragment fragment) {
         mFragmentList.add(fragment);
     }
