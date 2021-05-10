@@ -6,7 +6,7 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('C:\\Users\\User\\Documents\\GitHub\\Spotgram\\project\\keystores\\spotgram.keystore')
+            storeFile file('C:\\Users\\Cherif\\Documents\\GitHub\\Spotgram\\project\\keystores\\spotgram.keystore')
             storePassword 'android'
             keyAlias 'key0'
             keyPassword 'android'

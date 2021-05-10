@@ -34,6 +34,7 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         void openMapBtnOnClick(View v, int position);
         void openGMapBtnOnClick(View v, int position);
         void openAuthorProfileBtnClick( View v, int position );
+        void saveSpotBtnClick( View v, int position );
     }
 
     private static final String TAG = SpotAdapter.class.getName();
@@ -92,6 +93,10 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         @BindView(R.id.open_gmaps)
         MaterialButton openGMapBtn;
 
+        @SuppressLint("NonConstantResourceId")
+        @BindView(R.id.save_spot)
+        CheckBox saveSpotBtn;
+
         public ViewHolder( @NonNull View itemView ) {
             super( itemView );
             ButterKnife.bind( this, itemView );
@@ -119,6 +124,7 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         holder.openMapBtn.setOnClickListener(v -> onClickListener.openMapBtnOnClick( v, position ));
         holder.openGMapBtn.setOnClickListener(v -> onClickListener.openGMapBtnOnClick( v, position ));
         holder.authorUsername.setOnClickListener(v-> onClickListener.openAuthorProfileBtnClick( v, position ));
+        holder.saveSpotBtn.setOnClickListener(v-> onClickListener.saveSpotBtnClick( v, position ));
 
         holder.likeIcon.setOnClickListener(new View.OnClickListener() {
             @Override

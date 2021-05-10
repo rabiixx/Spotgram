@@ -8,12 +8,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,18 +37,14 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ExploreFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ExploreFragment extends Fragment {
 
-    @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.spot_list )
-    RecyclerView spotListRV;
-
     static private final String TAG = ExploreFragment.class.getName();
+
+    // Firebase auth
+    private FirebaseAuth mAuth;
+
+    private FirebaseUser currentUser;
 
     FirebaseFirestore db;
 
@@ -54,12 +57,12 @@ public class ExploreFragment extends Fragment {
     LinearLayoutManager llm;
     private ArrayList<SpotModel> spotList;
 
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.spot_list )
+    RecyclerView spotListRV;
+
     public ExploreFragment() {}
 
-    /**
-     * @return A new instance of fragment ExploreFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ExploreFragment newInstance() {
         ExploreFragment fragment = new ExploreFragment();
         Bundle args = new Bundle();
@@ -77,6 +80,14 @@ public class ExploreFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_explore, container, false);
         ButterKnife.bind(this, view );
+
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
+        if ( currentUser == null ) {
+            ExploreFragment.this.startActivity( new Intent( requireContext(), FirebaseSignIn.class ) );
+        }
 
         // Initialize Firestore database
         db = FirebaseFirestore.getInstance();
@@ -170,6 +181,19 @@ public class ExploreFragment extends Fragment {
 
                                     startActivity( openAuthorProfileIntent );
                                 }
+
+                                @Override
+                                public void saveSpotBtnClick( View v, int position ) {
+
+                                    Log.i(TAG, "eSPABILA");
+                                    CheckBox checkBox = (CheckBox) v;
+                                    if ( checkBox.isChecked()) {
+                                        Log.i(TAG, "Bookmark checked");
+                                    } else {
+                                        Log.i(TAG, "Bookmark unchecked");
+                                    }
+//                                    saveSpotOnSavedSpots( spotList.get( position ) );
+                                }
                             });
 
                             spotListRV.setLayoutManager(llm);
@@ -180,6 +204,29 @@ public class ExploreFragment extends Fragment {
                     }
 
                 });
+    }
+
+    private void saveSpotOnSavedSpots( SpotModel spot ) {
+        db.collection( "users" )
+                .document( currentUser.getUid() )
+                .collection("savedSpots")
+                .add( spot )
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId() );
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w( "debug", "Error adding document", e);
+                    }
+                });
+    }
+
+    private void removeSpotFromSavedSpots() {
+
     }
 
     public void updateData() {
