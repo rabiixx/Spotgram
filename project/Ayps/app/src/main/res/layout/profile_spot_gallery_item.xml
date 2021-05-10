@@ -7,6 +7,10 @@
     <com.example.ayps.SquareImageView
         android:id="@+id/siv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:layout_marginHorizontal="2dp"
+        android:background="#f1f2f6"
+        android:padding="1dp"/>
 
 </RelativeLayout>

@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -33,9 +32,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -142,9 +138,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                             .replace( ( (ViewGroup) getView().getParent()).getId(), fragment, "4" )
                             .addToBackStack(null)
                             .commit();
-
-
-
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
@@ -188,7 +181,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
                     }
                 });
-
     }
 
     private void loadUserProfile() {
@@ -198,9 +190,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 .into( profileImg );
 
         username.setText( currentUser.getDisplayName() );
-
     }
-
 
     @Override
     public void onClick(View v) {

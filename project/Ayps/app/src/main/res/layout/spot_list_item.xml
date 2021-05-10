@@ -54,6 +54,17 @@
                 android:contentDescription="content_description_media"
                 />
 
+            <CheckBox
+                android:layout_margin="20dp"
+                android:id="@+id/save_bookmark"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:button="@null"
+                android:checked="false"
+                android:background="@drawable/save_button_selector"
+                android:layout_gravity="right"
+                android:stateListAnimator="@animator/scale"/>
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -97,8 +108,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="title"
-                    android:textAppearance="?attr/textAppearanceHeadline6"
-                    />
+                    android:textSize="18dp"
+                    android:textColor="?android:attr/textColorPrimary" />
 
                 <TextView
                     android:id="@+id/spot_desc"
@@ -130,18 +141,25 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/open_map"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="action_1"
+                    android:text="Open Map"
                     style="?attr/borderlessButtonStyle"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:layout_marginRight="8dp" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/open_gmaps"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="action_2"
+                    android:text="Maps"
                     style="?attr/borderlessButtonStyle"
-                    />
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginRight="8dp"
+                    app:icon="@drawable/ic_google_maps_24"
+                    app:iconTint="@color/noColor"/>
+
             </LinearLayout>
 
         </LinearLayout>

@@ -29,8 +29,6 @@ public class SpotGalleryAdapter extends RecyclerView.Adapter<SpotGalleryAdapter.
     private ArrayList<String> spotsImgsRefs;
     private LayoutInflater mInflater;
 
-
-
     // Constructor
     public SpotGalleryAdapter(Context context, ArrayList<String> spotsImgsRefs ) {
         this.context = context;
@@ -51,7 +49,6 @@ public class SpotGalleryAdapter extends RecyclerView.Adapter<SpotGalleryAdapter.
 
     }
 
-
     @NonNull
     @Override
     public SpotGalleryAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -62,7 +59,6 @@ public class SpotGalleryAdapter extends RecyclerView.Adapter<SpotGalleryAdapter.
     @Override
     public void onBindViewHolder(@NonNull SpotGalleryAdapter.ViewHolder holder, int position) {
 
-        //Resources res = holder.itemView.getContext().getResources();
         String spotImgRef = spotsImgsRefs.get( position );
 
         StorageReference storageReference = FirebaseStorage.getInstance().getReference( spotImgRef );

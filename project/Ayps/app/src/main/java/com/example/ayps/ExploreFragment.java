@@ -1,6 +1,8 @@
 package com.example.ayps;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -132,7 +134,44 @@ public class ExploreFragment extends Fragment {
                             }
 
                             // Initialize adapter
-                            adapter = new SpotAdapter(requireContext(), spotList);
+                            adapter = new SpotAdapter( requireContext(), spotList, new SpotAdapter.SpotAdapterListener(){
+                                @Override
+                                public void openMapBtnOnClick(View v, int position) {
+
+                                    Intent openMapIntent = new Intent( requireContext(), ShowRoute.class );
+                                    openMapIntent.putExtra("DEST_LNG", spotList.get( position ).getLongitude() );
+                                    openMapIntent.putExtra("DEST_LAT", spotList.get( position ).getLatitude() );
+
+                                    startActivity( openMapIntent );
+
+                                }
+
+                                @Override
+                                public void openGMapBtnOnClick(View v, int position) {
+
+                                    Uri gmmIntentUri = Uri.parse("http://maps.google.com/maps?saddr=My+Location&daddr=42.805976,-1.672544");
+
+                                    // Create an Intent from gmmIntentUri. Set the action to ACTION_VIEW
+                                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+
+                                    mapIntent.setPackage("com.google.android.apps.maps");
+
+                                    startActivity(mapIntent);
+                                }
+
+                                @Override
+                                public void openAuthorProfileBtnClick(View v, int position) {
+                                    Log.i( TAG, "Open " + spotList.get(position).getAuthorUsername() +
+                                            "(" + spotList.get( position ).getAuthorId() +  ") profile");
+
+                                    Intent openAuthorProfileIntent = new Intent( requireContext(), UserProfile.class );
+                                    openAuthorProfileIntent.putExtra("AUTHOR_USERNAME", spotList.get( position ).getAuthorUsername() );
+                                    openAuthorProfileIntent.putExtra("AUTHOR_ID", spotList.get(position).getAuthorId() );
+
+                                    startActivity( openAuthorProfileIntent );
+                                }
+                            });
+
                             spotListRV.setLayoutManager(llm);
                             spotListRV.setAdapter(adapter);
 

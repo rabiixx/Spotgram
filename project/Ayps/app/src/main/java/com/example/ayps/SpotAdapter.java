@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -28,15 +29,27 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
+    // OnClickListener interface
+    public interface SpotAdapterListener {
+        void openMapBtnOnClick(View v, int position);
+        void openGMapBtnOnClick(View v, int position);
+        void openAuthorProfileBtnClick( View v, int position );
+    }
+
+    private static final String TAG = SpotAdapter.class.getName();
+
+    public SpotAdapterListener onClickListener;
+
     private ArrayList<SpotModel> spotArrayList;
     private LayoutInflater mInflater;
     Context context;
 
     // Constructor
-    public SpotAdapter(Context context, ArrayList<SpotModel> spotArrayList ) {
+    public SpotAdapter(Context context, ArrayList<SpotModel> spotArrayList, SpotAdapterListener listener ) {
         this.context = context;
         this.mInflater = LayoutInflater.from( context );
         this.spotArrayList = spotArrayList;
+        this.onClickListener = listener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -71,6 +84,14 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         @BindView(R.id.like_icon)
         CheckBox likeIcon;
 
+        @SuppressLint("NonConstantResourceId")
+        @BindView(R.id.open_map)
+        MaterialButton openMapBtn;
+
+        @SuppressLint("NonConstantResourceId")
+        @BindView(R.id.open_gmaps)
+        MaterialButton openGMapBtn;
+
         public ViewHolder( @NonNull View itemView ) {
             super( itemView );
             ButterKnife.bind( this, itemView );
@@ -95,7 +116,9 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull SpotAdapter.ViewHolder holder, int position) {
 
-//        Resources res = holder.itemView.getContext().getResources();
+        holder.openMapBtn.setOnClickListener(v -> onClickListener.openMapBtnOnClick( v, position ));
+        holder.openGMapBtn.setOnClickListener(v -> onClickListener.openGMapBtnOnClick( v, position ));
+        holder.authorUsername.setOnClickListener(v-> onClickListener.openAuthorProfileBtnClick( v, position ));
 
         holder.likeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,7 +144,6 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
 
         Glide.with( context ).load( spot.getAuthorProfileImg() ).apply(options).into( holder.authorIV );
-
 
         holder.spotTitle.setText( spot.getTitle() );
         holder.spotDesc.setText( spot.getDescription() );

@@ -27,8 +27,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -51,7 +49,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -170,7 +167,7 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         placeLayout.setEndIconOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult( new Intent(getActivity(), MapBoxTest.class), mapboxRequestCode );
+                startActivityForResult( new Intent(getActivity(), SelectLocation.class), mapboxRequestCode );
             }
         });
 

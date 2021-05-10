@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -39,13 +37,15 @@ import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import java.sql.Time;
 import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import org.jetbrains.annotations.NotNull;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -57,12 +57,9 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
+public class SelectLocation extends AppCompatActivity implements PermissionsListener, OnMapReadyCallback {
 
-/**
- * Drop a marker at a specific location and then perform
- * reverse geocoding to retrieve and display the location's address
- */
-public class MapBoxTest extends AppCompatActivity implements PermissionsListener, OnMapReadyCallback {
+    private static final String TAG = SelectLocation.class.getName();
 
     private static final String DROPPED_MARKER_LAYER_ID = "DROPPED_MARKER_LAYER_ID";
     private MapView mapView;
@@ -87,7 +84,7 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
 
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
 
-        setContentView( R.layout.activity_map_box );
+        setContentView( R.layout.activity_select_location);
 
         // Initialize the mapboxMap view
         mapView = findViewById( R.id.mapView );
@@ -99,7 +96,7 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
         submit.setOnClickListener(v -> {
 
             if ( placeName.toLowerCase().trim().equals("unknown") ) {
-                Toast.makeText(MapBoxTest.this, "You must select a place", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SelectLocation.this, "You must select a place", Toast.LENGTH_SHORT).show();
             } else {
 
                 Intent data = new Intent();
@@ -119,27 +116,20 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
                 setResult(RESULT_OK, data);
 
                 finish();
-
             }
-
         });
     }
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-        MapBoxTest.this.mapboxMap = mapboxMap;
+        SelectLocation.this.mapboxMap = mapboxMap;
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull final Style style) {
                 enableLocationPlugin(style);
 
-                // When user is still picking a location, we hover a marker above the mapboxMap in the center.
-                // This is done by using an image view with the default marker found in the SDK. You can
-                // swap out for your own marker image, just make sure it matches up with the dropped marker.
-                hoveringMarker = new ImageView(MapBoxTest.this);
+                hoveringMarker = new ImageView(SelectLocation.this);
                 hoveringMarker.setImageResource(R.drawable.red_marker);
-
-
 
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -170,7 +160,7 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
 
                             // Transform the appearance of the button to become the cancel button
                             selectLocationButton.setBackgroundColor(
-                                    ContextCompat.getColor(MapBoxTest.this, R.color.mapboxPink));
+                                    ContextCompat.getColor(SelectLocation.this, R.color.mapboxPink));
 
                             selectLocationButton.setText("Cancel");
 
@@ -193,7 +183,7 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
 
                             // Switch the button appearance back to select a location.
                             selectLocationButton.setBackgroundColor(
-                                    ContextCompat.getColor(MapBoxTest.this, R.color.mapboxGray));
+                                    ContextCompat.getColor(SelectLocation.this, R.color.mapboxGray));
                             selectLocationButton.setText("Select a location");
 
                             // Show the red hovering ImageView marker
@@ -337,8 +327,6 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
                 @Override
                 public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
 
-
-
                     if (response.body() != null) {
                         List<CarmenFeature> results = response.body().features();
 
@@ -377,19 +365,19 @@ public class MapBoxTest extends AppCompatActivity implements PermissionsListener
                             });
 
                         } else {
-                            Toast.makeText(MapBoxTest.this,
+                            Toast.makeText(SelectLocation.this,
                                     getString(R.string.location_picker_dropped_marker_snippet_no_results), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
-                public void onFailure(Call<GeocodingResponse> call, Throwable throwable) {
-                    //Timber.e("Geocoding Failure: %s", throwable.getMessage());
+                public void onFailure(@NotNull Call<GeocodingResponse> call, @NotNull Throwable throwable) {
+                    Log.e(TAG, "Geocoding Failure: " + throwable.getMessage());
                 }
             });
         } catch (ServicesException servicesException) {
-            //Timber.e("Error geocoding: %s", servicesException.toString());
+            Log.e(TAG, "Error geocoding: " + servicesException.toString());
             servicesException.printStackTrace();
         }
     }
