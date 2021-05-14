@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -77,6 +78,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @BindView( R.id.profile_img )
     CircleImageView profileImg;
 
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.user_saved_spots )
+    CheckBox userSavedSpotsBtn;
+
     public ProfileFragment() {}
 
     public static ProfileFragment newInstance() {
@@ -122,6 +127,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         getUserSpots( view );
 
         signOutBtn.setOnClickListener( this );
+        userSavedSpotsBtn.setOnClickListener( this );
 
         // Recycler view on item click listener
         spotListRV.addOnItemTouchListener(

@@ -16,8 +16,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -32,7 +35,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -134,13 +141,13 @@ public class ExploreFragment extends Fragment {
                         if ( value != null && value.size() != 0 ) {
 
                             // Get last returned element reference
-                            assert value != null;
                             lastVisible = value.getDocuments()
-                                    .get(value.size() - 1);
+                                    .get( value.size() - 1 );
 
                             // Create spot list with returned data
                             for (QueryDocumentSnapshot doc : value) {
                                 SpotModel spotModel = doc.toObject(SpotModel.class);
+                                spotModel.setSpotId( doc.getId() );
                                 spotList.add(spotModel);
                             }
 
@@ -185,14 +192,14 @@ public class ExploreFragment extends Fragment {
                                 @Override
                                 public void saveSpotBtnClick( View v, int position ) {
 
-                                    Log.i(TAG, "eSPABILA");
                                     CheckBox checkBox = (CheckBox) v;
+                                    SpotModel spot = spotList.get( position );
+
                                     if ( checkBox.isChecked()) {
-                                        Log.i(TAG, "Bookmark checked");
+                                        spot.addSpotToSavedSpots( currentUser );
                                     } else {
-                                        Log.i(TAG, "Bookmark unchecked");
+                                        spot.removeSpotFromSavedSpots( currentUser );
                                     }
-//                                    saveSpotOnSavedSpots( spotList.get( position ) );
                                 }
                             });
 
@@ -204,29 +211,6 @@ public class ExploreFragment extends Fragment {
                     }
 
                 });
-    }
-
-    private void saveSpotOnSavedSpots( SpotModel spot ) {
-        db.collection( "users" )
-                .document( currentUser.getUid() )
-                .collection("savedSpots")
-                .add( spot )
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId() );
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w( "debug", "Error adding document", e);
-                    }
-                });
-    }
-
-    private void removeSpotFromSavedSpots() {
-
     }
 
     public void updateData() {
@@ -253,6 +237,7 @@ public class ExploreFragment extends Fragment {
                             // Add new elements to spot list
                             for ( QueryDocumentSnapshot doc : value ) {
                                 SpotModel spotModel = doc.toObject( SpotModel.class );
+                                spotModel.setSpotId( doc.getId() );
                                 spotList.add( spotModel );
                             }
 

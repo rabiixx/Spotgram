@@ -91,6 +91,13 @@ public class SpotModel {
      */
     public void addSpot() {
 
+        DocumentReference ref = db.collection("users").document( currentUser.getUid() )
+                .collection("spots")
+                .document();
+        setSpotId( ref.getId() );
+
+        Log.i(TAG, "Spot ID before: " + ref.getId() );
+
         Map<String, Object> spot = new HashMap<>();
 
         // Post
@@ -118,19 +125,18 @@ public class SpotModel {
         // Add a new document with a generated ID
         db.collection("users").document( currentUser.getUid() )
                 .collection("spots")
-                .add(spot)
-                .addOnSuccessListener( new OnSuccessListener<DocumentReference>() {
+                .document( getSpotId() )
+                .set(spot)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess( DocumentReference documentReference ) {
-                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId() );
-
+                    public void onSuccess(Void aVoid) {
                         db.collection("spots")
-                                .document( documentReference.getId() )
+                                .document( getSpotId() )
                                 .set( spot )
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        Log.d( "debug", "DocumentSnapshot added with ID: " + documentReference.getId() );
+                                        Log.d( "debug", "DocumentSnapshot added with ID: " + getSpotId() );
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -145,6 +151,74 @@ public class SpotModel {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w( "debug", "Error adding document", e);
+
+                    }
+                });
+
+
+    }
+
+    public void removeSpotFromSavedSpots( FirebaseUser currentUser ) {
+
+        db.collection("users").document( currentUser.getUid() )
+                .collection("savedSpots")
+                .document( getSpotId() )
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
+    }
+
+
+    public void addSpotToSavedSpots( FirebaseUser currentUser ) {
+
+        Map<String, Object> spot = new HashMap<>();
+
+        // Post
+        spot.put("title", this.title);
+        spot.put("description", this.description);
+        spot.put("spotImg", this.spotImg);
+        spot.put("numLikes", this.numLikes);
+        spot.put("created_at", new Timestamp( new Date() ) );
+
+        // MapBox
+        spot.put("placeName", this.placeName);
+        spot.put("locality", this.locality);
+        spot.put("place", this.place);
+        spot.put("region", this.region);
+        spot.put("country", this.country);
+        spot.put("latitude", this.latitude);
+        spot.put("longitude", this.longitude);
+        spot.put("tags", this.tags);
+
+        // Author
+        spot.put("authorId", this.authorId);
+        spot.put("authorUsername", this.authorUsername);
+        spot.put("authorProfileImg", this.authorProfileImg);
+
+        db.collection("users").document( currentUser.getUid() )
+                .collection("savedSpots")
+                .document( getSpotId() )
+                .set(spot)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "Spot added to user saved spots");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG,"An error ocurred when removing spot from saved spots.");
                     }
                 });
     }
@@ -154,7 +228,6 @@ public class SpotModel {
         final String collectionPath = "spots";
         final String orderField = "created_at";
         final int limit = 5;
-
 
         db.collection( collectionPath )
                 .orderBy( orderField )
@@ -214,6 +287,7 @@ public class SpotModel {
     }
 
     public void setSpotId(String spotId) {
+        Log.i(TAG, "setSpotId: " + spotId );
         this.spotId = spotId;
     }
 
@@ -339,5 +413,9 @@ public class SpotModel {
 
     public String getAuthorProfileImg() {
         return authorProfileImg;
+    }
+
+    public void setAuthorProfileImg(String authorProfileImg) {
+        this.authorProfileImg = authorProfileImg;
     }
 }

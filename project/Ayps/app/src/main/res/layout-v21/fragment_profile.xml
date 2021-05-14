@@ -8,69 +8,166 @@
     tools:context=".ExploreFragment"
     android:id="@+id/layout">
 
-    <ImageView
-        android:id="@+id/header_cover_image"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/nav_header_bg1" />
-
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_img"
         app:civ_border_width="3dp"
         app:civ_border_color="#FFFFFFFF"
-        android:layout_width="130dp"
-        android:layout_height="130dp"
-        android:layout_below="@+id/header_cover_image"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="-130dp"
         android:elevation="5dp"
-        android:padding="20dp"
+        android:padding="10dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/defavatar" />
+        android:src="@drawable/defavatar"
+        android:layout_marginTop="15dp"/>
 
-    <RelativeLayout
-        android:id="@+id/profile_layout"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/header_cover_image"
-        android:background="@color/white"
-        android:elevation="4dp"
-        android:paddingBottom="24dp">
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/roboto_medium"
+        android:text="rabiixx"
+        android:textColor="#2d333f"
+        android:textSize="20sp"
+        android:layout_below="@id/profile_img"/>
 
+    <LinearLayout
+        android:id="@+id/stats"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:weightSum="3"
+        android:layout_below="@id/username"
+        android:layout_marginHorizontal="60dp"
+        android:baselineAligned="false"
+        android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/username"
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/num_spots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#2f3542"
+                android:textSize="19sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="spots"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:background="#dfe4ea"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/num_followers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="19sp"
+                android:textColor="#2f3542"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="followers" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:background="#dfe4ea"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/num_follows"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                android:textColor="#2f3542"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="following" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/user_saved_spots"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:button="@null"
+        android:checked="false"
+        android:background="@drawable/ic_baseline_bookmark__black_24"
+        android:stateListAnimator="@animator/scale"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="15dp"/>
+
+    <Button
+            android:id="@+id/edit_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/stats"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:fontFamily="@font/roboto_medium"
-            android:text="rabiixx"
-            android:textColor="#2d333f"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/containedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/username"
             android:layout_marginTop="10dp"
             android:text="Edit Profile"
             style="?attr/materialButtonOutlinedStyle"
             android:textColor="#2d333f"
-            android:layout_centerHorizontal="true"
             app:icon="@drawable/ic_edit_profile2"
             app:iconTint="@color/black"
+            android:textAllCaps="false"
             app:iconPadding="10dp"/>
 
-    </RelativeLayout>
+    <View
+        android:id="@+id/separator1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#dfe4ea"
+        android:layout_below="@id/edit_profile"
+        android:layout_marginTop="15dp"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/spot_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/profile_layout"/>
+        android:layout_below="@+id/separator1"/>
+
 
     <!-- Signup Button -->
     <Button

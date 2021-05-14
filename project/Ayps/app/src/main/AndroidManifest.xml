@@ -6,6 +6,7 @@
     tools:targetApi="m">
     <!-- Since API Level 30, package visibility has changed and its necessary to declare queries -->
     <queries>
+
         <!-- Camera -->
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
@@ -33,12 +34,14 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.Ayps">
-        <activity android:name=".ShowRoute"/>
+        <activity android:name=".ShowSpot"></activity>
+        <activity android:name=".ShowRoute" />
         <activity android:name=".ImportDataFirestore" />
         <activity android:name=".UserProfile" />
         <activity android:name=".FirebaseSignIn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

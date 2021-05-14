@@ -16,7 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -39,6 +45,10 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
     private static final String TAG = SpotAdapter.class.getName();
 
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private FirebaseFirestore db;
+
     public SpotAdapterListener onClickListener;
 
     private ArrayList<SpotModel> spotArrayList;
@@ -54,6 +64,7 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+
 
         // Spot author data
         @SuppressLint("NonConstantResourceId")
@@ -113,7 +124,11 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         int width = view.getMeasuredWidth();
         int height = view.getMeasuredHeight();
-        Log.i("debug", "Height: " + height );
+
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
+        db = FirebaseFirestore.getInstance();
 
         return new ViewHolder(view);
     }
@@ -142,6 +157,40 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
 
         SpotModel spot = spotArrayList.get( position );
 
+        Log.i(TAG, "Spot Title: " + spot.getTitle() );
+        Log.i(TAG, "Spot ID: " + spot.getSpotId() );
+
+        // Firebase auth
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .document( currentUser.getUid() )
+                .collection("savedSpots")
+                .document( spot.getSpotId() )
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Log.d(TAG, "Document does not exist!");
+                                holder.saveSpotBtn.setChecked( true );
+                            } else {
+                                Log.d(TAG, "Document does not exist!");
+                                holder.saveSpotBtn.setChecked( false );
+                            }
+                        } else {
+                            Log.d(TAG, "Failed with: ", task.getException());
+                        }
+                    }
+                });
+
+
         holder.authorUsername.setText( spot.getAuthorUsername() );
         RequestOptions options = new RequestOptions()
                 .centerCrop()
@@ -167,8 +216,8 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         return spotArrayList.size();
     }
 
-    public void add( final int position, final SpotModel spotModel ) {
-        spotArrayList.add( position, spotModel );
+    public void add( final int position, final SpotModel spot ) {
+        spotArrayList.add( position, spot );
         notifyItemInserted( position );
     }
 
@@ -177,4 +226,5 @@ public class SpotAdapter extends RecyclerView.Adapter<SpotAdapter.ViewHolder> {
         spotArrayList.remove( position );
         notifyItemRemoved( position );
     }
+
 }

@@ -15,4 +15,9 @@
         android:enabled="true"
         android:icon="@drawable/ic_menu_profile_24"
         android:title="Profile"/>
+    <item
+        android:id="@+id/saved_spots"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_bookmark__black_24"
+        android:title="Spots"/>
 </menu>

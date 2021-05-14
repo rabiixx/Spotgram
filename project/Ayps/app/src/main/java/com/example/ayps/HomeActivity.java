@@ -23,7 +23,7 @@ public class HomeActivity extends AppCompatActivity {
     ExploreFragment exploreFragment = new ExploreFragment();
     AddSpotFragment addSpotFragment = new AddSpotFragment();
     ProfileFragment profileFragment = new ProfileFragment();
-//    ProfileSpotListFragment profileSpotListFragment = new ProfileSpotListFragment();
+    SavedSpotsFragment savedSpotsFragment = new SavedSpotsFragment();
 
     final FragmentManager fm = getSupportFragmentManager();
     Fragment active = exploreFragment;
@@ -38,6 +38,7 @@ public class HomeActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnNavigationItemSelectedListener( navigationItemSelectedListener );
 
+        fm.beginTransaction().add(R.id.container, savedSpotsFragment, "4").hide( savedSpotsFragment ).commit();
         fm.beginTransaction().add(R.id.container, profileFragment, "3").hide(profileFragment).commit();
         fm.beginTransaction().add(R.id.container, addSpotFragment, "2").hide(addSpotFragment).commit();
         fm.beginTransaction().add(R.id.container, exploreFragment, "1").commit();
@@ -82,9 +83,12 @@ public class HomeActivity extends AppCompatActivity {
                         active = addSpotFragment;
                         return true;
                     } else if ( item.getItemId() == R.id.profile) {
-                        Log.i(TAG, "ProfileFragment selected");
                         fm.beginTransaction().hide(active).show(profileFragment).commit();
                         active = profileFragment;
+                        return true;
+                    } else if ( item.getItemId() == R.id.saved_spots ) {
+                        fm.beginTransaction().hide(active).show( savedSpotsFragment ).commit();
+                        active = savedSpotsFragment;
                         return true;
                     }
                     return false;
