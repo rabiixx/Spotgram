@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -54,6 +58,14 @@ public class SavedSpotsFragment extends Fragment {
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.saved_spots )
     RecyclerView savedSpotsRV;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.saved_spots_search_box )
+    TextInputLayout savedSpotsSearchBox;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.search_box_input )
+    TextInputEditText searchBoxInput;
 
     public SavedSpotsFragment() {}
 
@@ -116,6 +128,55 @@ public class SavedSpotsFragment extends Fragment {
 
         savedSpotsRV.setLayoutManager(llm);
         savedSpotsRV.setAdapter(savedSpotAdapter);
+
+        searchBoxInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                if ( editable.length() == 0) {
+                    getUserSavedSpots();
+                }
+
+                db.collection("users")
+                        .document( currentUser.getUid() )
+                        .collection("savedSpots")
+                        .whereGreaterThanOrEqualTo("title", editable.toString() )
+                        .whereLessThanOrEqualTo("title", editable.toString() + "\uf8ff")
+                        .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                            @Override
+                            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException e) {
+                                if (e != null) {
+                                    Log.w("debug", "Listen failed.", e);
+                                    return;
+                                }
+
+                                savedSpotsList.clear();
+
+                                if (value != null && value.size() != 0) {
+                                    for (DocumentSnapshot doc : value.getDocuments() ) {
+                                        SpotModel spot = doc.toObject(SpotModel.class);
+                                        spot.setSpotId( doc.getId() );
+                                        savedSpotsList.add(spot);
+                                    }
+                                }
+
+                                if ( savedSpotAdapter != null ) {
+                                    savedSpotAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        });
+            }
+        });
 
         return view;
     }

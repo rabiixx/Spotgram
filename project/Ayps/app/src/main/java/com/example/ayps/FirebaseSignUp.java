@@ -215,7 +215,7 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
                 currentUser.getEmail(),
                 currentUser.getPhotoUrl().toString(),
                 "firebase"
-                );
+        );
 
         db.collection("users")
                 .document( currentUser.getUid() )

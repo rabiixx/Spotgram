@@ -1,5 +1,6 @@
 package com.example.ayps;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -15,9 +16,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -37,6 +43,10 @@ public class UserProfile extends AppCompatActivity implements View.OnClickListen
     private String authorUsername;
     private String authorId;
 
+    private User author;
+
+    private User currentUserModel;
+
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.spot_list )
     RecyclerView spotListRV;
@@ -54,8 +64,8 @@ public class UserProfile extends AppCompatActivity implements View.OnClickListen
     TextView numFollowersTV;
 
     @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.num_follows )
-    TextView numFollowsTV;
+    @BindView( R.id.num_following )
+    TextView numFollowingTV;
 
     @SuppressLint("NonConstantResourceId")
     @BindView( R.id.follow_btn )
@@ -109,9 +119,11 @@ public class UserProfile extends AppCompatActivity implements View.OnClickListen
 
         getUserSpots();
 
+        getUserData();
+
+        checkIfFollowing();
+
         followBtn.setOnClickListener(this);
-
-
     }
 
     private void getUserSpots() {
@@ -134,12 +146,9 @@ public class UserProfile extends AppCompatActivity implements View.OnClickListen
                         spotsImgsRefs.add( doc.getString( "spotImg" ) );
                     }
 
-                    numSpotsTV.setText( String.valueOf(spotsImgsRefs.size()) );
-
                     SpotGalleryAdapter adapter = new SpotGalleryAdapter( UserProfile.this, spotsImgsRefs );
                     spotListRV.setLayoutManager( new GridLayoutManager( UserProfile.this, 3 ) );
                     spotListRV.setAdapter( adapter );
-
                 });
     }
 
@@ -154,13 +163,174 @@ public class UserProfile extends AppCompatActivity implements View.OnClickListen
                 followBtn.setTextColor(Color.BLACK);
                 numFollowersTV.setText(
                         String.valueOf( Integer.parseInt( numFollowersTV.getText().toString() ) + 1 ) );
+
+                updateAuthorFollowers(true);
+                updateCurrentUserFollowing(true);
+
             } else {
                 followBtn.setText("Follow");
                 followBtn.setBackgroundColor(0xff7f50);
                 followBtn.setTextColor(Color.WHITE);
                 numFollowersTV.setText(
                         String.valueOf( Integer.parseInt( numFollowersTV.getText().toString() ) -1 ) );
+
+
+                updateAuthorFollowers(false);
+                updateCurrentUserFollowing(false);
             }
         }
+    }
+
+    private void checkIfFollowing() {
+
+        db.collection("users")
+                .document(authorId)
+                .collection("followers")
+                .document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot doc = task.getResult();
+                            if ( doc.exists() ) {
+                                followBtn.setText("Following");
+                                followBtn.setBackgroundColor(Color.WHITE);
+                                followBtn.setTextColor(Color.BLACK);
+                            } else {
+                                followBtn.setText("Follow");
+                                followBtn.setBackgroundColor(0xff7f50);
+                                followBtn.setTextColor(Color.WHITE);
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void getUserData() {
+
+        db.collection("users")
+                .document(this.authorId)
+                .collection("spots")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if ( task.isSuccessful() ) {
+                            numSpotsTV.setText( String.valueOf(task.getResult().size()));
+                        }
+                    }
+                });
+
+        db.collection("users")
+                .document(this.authorId)
+                .collection("followers")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if ( task.isSuccessful() ) {
+                            numFollowersTV.setText( String.valueOf(task.getResult().size()));
+                        }
+                    }
+                });
+
+        db.collection("users")
+                .document(this.authorId)
+                .collection("following")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if ( task.isSuccessful() ) {
+                            numFollowingTV.setText( String.valueOf(task.getResult().size()));
+                        }
+                    }
+                });
+    }
+
+
+
+    private void updateAuthorFollowers(boolean increase) {
+
+        db.collection("users")
+                .document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot doc = task.getResult();
+                        User user = doc.toObject(User.class);
+
+                        if ( increase ) {
+                            db.collection("users")
+                                    .document(authorId)
+                                    .collection("followers")
+                                    .document(user.getUserId())
+                                    .set(user)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+
+                                        }
+                                    });
+                        } else {
+                            db.collection("users")
+                                    .document(authorId)
+                                    .collection("followers")
+                                    .document(user.getUserId())
+                                    .delete()
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+
+                                        }
+                                    });
+                        }
+
+                    }
+                });
+    }
+
+    private void updateCurrentUserFollowing(boolean increase) {
+
+        db.collection("users")
+                .document(authorId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot doc = task.getResult();
+                        User user = doc.toObject(User.class);
+
+                        if ( increase ) {
+                            db.collection("users")
+                                    .document(currentUser.getUid())
+                                    .collection("following")
+                                    .document(user.getUserId())
+                                    .set(user)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+
+                                        }
+                                    });
+                        } else {
+                            db.collection("users")
+                                    .document(currentUser.getUid())
+                                    .collection("following")
+                                    .document(user.getUserId())
+                                    .delete()
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+
+                                        }
+                                    });
+                        }
+                    }
+                });
+
     }
 }

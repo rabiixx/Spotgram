@@ -61,8 +61,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = AddSpotFragment.class.getName();
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private static final int RESULT_OK = -1;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -132,12 +130,9 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
     public AddSpotFragment() { }
 
-    public static AddSpotFragment newInstance( String param1, String param2 ) {
+    public static AddSpotFragment newInstance() {
         AddSpotFragment fragment = new AddSpotFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -151,7 +146,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
         // Firebase Storage Initialization
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
-
 
         //  Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -224,29 +218,12 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                     // Upload Spot to FireStore Database
                     spotModel.addSpot();
 
-                    AddSpotFragment addSpotFragment = new AddSpotFragment();
-
-//                    getActivity().getSupportFragmentManager()
+                    //( (HomeActivity) getActivity() ).bottomNavigationView.setSelectedItemId( R.id.explore );
 
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .remove( ( (HomeActivity) requireActivity() ).addSpotFragment )
+                            .replace(R.id.container, new ExploreFragment(), "1")
+                            .addToBackStack(null)
                             .commit();
-
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .add( ( (ViewGroup) getView().getParent()).getId() , addSpotFragment )
-                            .hide( addSpotFragment )
-                            .commit();
-
-                    ( (HomeActivity) requireActivity() ).addSpotFragment = addSpotFragment;
-                    ( (HomeActivity) requireActivity() ).active = ( (HomeActivity) requireActivity() ).addSpotFragment;
-
-                    ( (HomeActivity) getActivity() ).bottomNavigationView.setSelectedItemId( R.id.explore );
-
-                    /*getActivity().getSupportFragmentManager().beginTransaction()
-                            .remove( getActivity().getSupportFragmentManager().findFragmentByTag("2") )
-                            .commit();*/
-
-
                 }
             }
         });
@@ -276,15 +253,6 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
 
         if ( data != null && TextUtils.isEmpty( data ) ) {
             titleLayout.setError("Title cannot be empty.");
-            return Boolean.FALSE;
-        }
-
-        final String USERNAME_PATTERN = "[a-z0-9]+";
-        Pattern pattern = Pattern.compile( USERNAME_PATTERN );
-        Matcher matcher = pattern.matcher( data );
-
-        if ( !matcher.matches() ) {
-            titleLayout.setError("Enter a valid title.");
             return Boolean.FALSE;
         }
 

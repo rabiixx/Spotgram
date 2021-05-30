@@ -1,5 +1,7 @@
 package com.example.ayps;
 
+import java.util.ArrayList;
+
 public class User {
 
     private String userId;
@@ -7,6 +9,10 @@ public class User {
     private String email;
     private String profileImg;
     private String provider;
+
+    public User() {
+
+    }
 
     public User( String userId, String username, String email, String profileImg, String provider ) {
         this.userId = userId;

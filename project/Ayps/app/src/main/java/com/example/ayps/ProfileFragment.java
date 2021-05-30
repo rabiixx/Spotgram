@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.RelativeLayout;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,11 +30,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -48,6 +54,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = ProfileFragment.class.getName();
+
+    ArrayList<String> spotsImgsRefs;
+
+    SpotGalleryAdapter adapter;
 
     // Firestore
     private FirebaseFirestore db;
@@ -79,8 +89,20 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     CircleImageView profileImg;
 
     @SuppressLint("NonConstantResourceId")
-    @BindView( R.id.user_saved_spots )
-    CheckBox userSavedSpotsBtn;
+    @BindView( R.id.empty_spots_layout )
+    RelativeLayout emptySpotsRL;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.num_spots )
+    TextView numSpotsTV;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.num_followers )
+    TextView numFollowersTV;
+
+    @SuppressLint("NonConstantResourceId")
+    @BindView( R.id.num_following )
+    TextView numFollowingTV;
 
     public ProfileFragment() {}
 
@@ -110,6 +132,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
+        spotsImgsRefs = new ArrayList<>();
+
         if ( currentUser == null ) {
             ProfileFragment.this.startActivity( new Intent( requireContext(), FirebaseSignIn.class ) );
         }
@@ -122,14 +146,13 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
 
+        getUserData();
         loadUserProfile();
 
         getUserSpots( view );
 
         signOutBtn.setOnClickListener( this );
-        userSavedSpotsBtn.setOnClickListener( this );
 
-        // Recycler view on item click listener
         spotListRV.addOnItemTouchListener(
                 new RecyclerItemClickListener( requireContext(), spotListRV, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
@@ -159,13 +182,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         final String collectionPath = "users";
         final String orderField = "created_at";
-        final int limit = 6;
 
         db.collection( collectionPath )
                 .document( currentUser.getUid() )
                 .collection( "spots" )
-                .orderBy( orderField )
-                .limit( limit )
+                .orderBy( orderField, Query.Direction.DESCENDING )
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent( @Nullable QuerySnapshot value,
@@ -175,16 +196,67 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                             return;
                         }
 
-                        ArrayList<String> spotsImgsRefs = new ArrayList<>();
+                        spotsImgsRefs.clear();
+
                         for ( QueryDocumentSnapshot doc : value ) {
-//                            Log.i(TAG, doc.getString("spotImg") );
                             spotsImgsRefs.add( doc.getString( "spotImg" ) );
                         }
 
-                        SpotGalleryAdapter adapter = new SpotGalleryAdapter( requireContext(), spotsImgsRefs );
+                        if ( spotsImgsRefs.size() == 0 ) {
+                            spotListRV.setVisibility(View.GONE);
+                            emptySpotsRL.setVisibility(View.VISIBLE);
+                        } else {
+                            spotListRV.setVisibility(View.VISIBLE);
+                            emptySpotsRL.setVisibility(View.GONE);
+                        }
+
+                        adapter = new SpotGalleryAdapter( requireContext(), spotsImgsRefs );
                         spotListRV.setLayoutManager( new GridLayoutManager( view.getContext(), 3 ) );
                         spotListRV.setAdapter( adapter );
 
+                    }
+                });
+    }
+
+    private void getUserData() {
+
+        db.collection("users")
+                .document(currentUser.getUid())
+                .collection("spots")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if ( task.isSuccessful() ) {
+                            numSpotsTV.setText( String.valueOf(task.getResult().size()));
+                        }
+                    }
+                });
+
+        db.collection("users")
+                .document(currentUser.getUid())
+                .collection("followers")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if ( task.isSuccessful() ) {
+                            Log.i(TAG, "followers: " + task.getResult().size() );
+                            numFollowersTV.setText( String.valueOf(task.getResult().size()));
+                        }
+                    }
+                });
+
+        db.collection("users")
+                .document(currentUser.getUid())
+                .collection("following")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if ( task.isSuccessful() ) {
+                            numFollowingTV.setText( String.valueOf(task.getResult().size()));
+                        }
                     }
                 });
     }

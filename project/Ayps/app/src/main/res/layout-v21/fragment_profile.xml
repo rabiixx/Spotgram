@@ -109,7 +109,7 @@
             android:gravity="center_horizontal">
 
             <TextView
-                android:id="@+id/num_follows"
+                android:id="@+id/num_following"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
@@ -125,18 +125,19 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Sign Out Button -->
     <CheckBox
-        android:id="@+id/user_saved_spots"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:id="@+id/sign_out"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:button="@null"
         android:checked="false"
-        android:background="@drawable/ic_baseline_bookmark__black_24"
+        android:background="@drawable/ic_logout_30"
         android:stateListAnimator="@animator/scale"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="15dp"/>
+        android:layout_margin="20dp"/>
 
     <Button
             android:id="@+id/edit_profile"
@@ -161,27 +162,25 @@
         android:layout_below="@id/edit_profile"
         android:layout_marginTop="15dp"/>
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/spot_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/separator1"/>
 
+    <RelativeLayout
+        android:id="@+id/empty_spots_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/separator1"
+        android:gravity="center"
+        android:visibility="gone">
 
-    <!-- Signup Button -->
-    <Button
-        android:id="@+id/sign_out"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp"
-        android:padding="12dp"
-        android:text="Sign Out"
-        android:textColor="@color/black"
-        app:backgroundTint="#ffc048"
-        android:elevation="2dp"/>
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:src="@drawable/ic_empty_box" />
+    </RelativeLayout>
 
 </RelativeLayout>

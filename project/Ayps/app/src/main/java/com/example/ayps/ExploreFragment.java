@@ -57,7 +57,7 @@ public class ExploreFragment extends Fragment {
 
     private final String collectionPath = "spots";
     private final String orderField = "created_at";
-    private final int limit = 2;
+    private final int limit = 10;
     private DocumentSnapshot lastVisible;
 
     private SpotAdapter adapter;
@@ -161,7 +161,6 @@ public class ExploreFragment extends Fragment {
                                     openMapIntent.putExtra("DEST_LAT", spotList.get( position ).getLatitude() );
 
                                     startActivity( openMapIntent );
-
                                 }
 
                                 @Override
@@ -205,11 +204,8 @@ public class ExploreFragment extends Fragment {
 
                             spotListRV.setLayoutManager(llm);
                             spotListRV.setAdapter(adapter);
-
                         }
-
                     }
-
                 });
     }
 
@@ -248,37 +244,4 @@ public class ExploreFragment extends Fragment {
                     }
                 });
     }
-
-
-    public void getSpotList() {
-
-        final String collectionPath = "spots";
-        final String orderField = "created_at";
-        final int limit = 5;
-
-        db.collection( collectionPath )
-                .orderBy( orderField )
-                .limit( limit )
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent( @Nullable QuerySnapshot value,
-                                         @Nullable FirebaseFirestoreException e ) {
-                        if (e != null) {
-                            Log.w(TAG, "Listen failed.", e);
-                            return;
-                        }
-
-                        List<String> cities = new ArrayList<>();
-                        for ( QueryDocumentSnapshot doc : value ) {
-                            if ( doc.get("title") != null ) {
-                                cities.add(doc.getString("name"));
-                            }
-                        }
-                        Log.d(TAG, "Current cites in CA: " + cities);
-                    }
-                });
-
-    }
-
-
 }
