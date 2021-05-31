@@ -166,7 +166,10 @@ public class ExploreFragment extends Fragment {
                                 @Override
                                 public void openGMapBtnOnClick(View v, int position) {
 
-                                    Uri gmmIntentUri = Uri.parse("http://maps.google.com/maps?saddr=My+Location&daddr=42.805976,-1.672544");
+                                    Uri gmmIntentUri = Uri.parse("http://maps.google.com/maps?saddr=My+Location&daddr=" +
+                                            spotList.get( position ).getLatitude() +
+                                            "," + spotList.get( position ).getLongitude()
+                                    );
 
                                     // Create an Intent from gmmIntentUri. Set the action to ACTION_VIEW
                                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
