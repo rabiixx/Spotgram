@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -125,8 +126,9 @@ public class ProfileSpotListFragment extends Fragment {
         final String subcollection = "spots";
 
         db.collection( collection ).document( userUid )
-                .collection( subcollection ).
-                get()
+                .collection( subcollection )
+                .orderBy("created_at", Query.Direction.DESCENDING)
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {

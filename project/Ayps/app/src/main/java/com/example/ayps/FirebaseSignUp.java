@@ -270,8 +270,6 @@ public class FirebaseSignUp extends AppCompatActivity implements View.OnClickLis
 
     }
 
-
-
     // Clears focus from EditTexts when touching outside
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override

@@ -19,7 +19,8 @@
             android:id="@+id/spot_img"
             android:layout_width="match_parent"
             android:layout_height="180dp"
-            tools:src="@drawable/default_spot"/>
+            android:src="@drawable/default_add_spot_image"
+            android:contentDescription="Spot Image" />
 
         <!-- Spot Title -->
         <com.google.android.material.textfield.TextInputLayout

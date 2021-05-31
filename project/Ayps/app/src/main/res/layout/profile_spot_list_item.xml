@@ -132,11 +132,11 @@
                     />
 
                 <TextView
-                    android:id="@+id/asd"
+                    android:id="@+id/location"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="supporting_text"
+                    android:text="Donosti"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?android:attr/textColorSecondary"
                     />
@@ -151,18 +151,25 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/open_map"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="action_1"
+                    android:text="Open Map"
                     style="?attr/borderlessButtonStyle"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:layout_marginRight="8dp" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/open_gmaps"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="action_2"
+                    android:text="Maps"
                     style="?attr/borderlessButtonStyle"
-                    />
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginRight="8dp"
+                    app:icon="@drawable/ic_google_maps_24"
+                    app:iconTint="@color/noColor"/>
+
             </LinearLayout>
 
         </LinearLayout>

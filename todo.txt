@@ -1,1 +1,2 @@
 Posicionar las lista en las images que pulsa el usuario.
+Likes
