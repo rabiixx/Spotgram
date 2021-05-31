@@ -218,12 +218,15 @@ public class AddSpotFragment extends Fragment implements View.OnClickListener {
                     // Upload Spot to FireStore Database
                     spotModel.addSpot();
 
-                    //( (HomeActivity) getActivity() ).bottomNavigationView.setSelectedItemId( R.id.explore );
+                    Log.d(TAG, "Lesgo");
 
-                    getActivity().getSupportFragmentManager().beginTransaction()
+
+                    ( (HomeActivity) getActivity() ).bottomNavigationView.setSelectedItemId( R.id.explore );
+
+                   /* getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.container, new ExploreFragment(), "1")
                             .addToBackStack(null)
-                            .commit();
+                            .commit();*/
                 }
             }
         });

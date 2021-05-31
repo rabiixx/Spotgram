@@ -104,7 +104,7 @@ public class ExploreFragment extends Fragment {
         spotList = new ArrayList<>();
 
         // Load spot list
-        getData();
+        getData(view);
 
         // if end of spot list reached, load new spots
         spotListRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -124,7 +124,7 @@ public class ExploreFragment extends Fragment {
         return view;
     }
 
-    public void getData(  ) {
+    public void getData( View view ) {
 
         db.collection( collectionPath )
                 .orderBy( orderField, Query.Direction.DESCENDING )
@@ -152,7 +152,7 @@ public class ExploreFragment extends Fragment {
                             }
 
                             // Initialize adapter
-                            adapter = new SpotAdapter( requireContext(), spotList, new SpotAdapter.SpotAdapterListener(){
+                            adapter = new SpotAdapter( view.getContext(), spotList, new SpotAdapter.SpotAdapterListener(){
                                 @Override
                                 public void openMapBtnOnClick(View v, int position) {
 

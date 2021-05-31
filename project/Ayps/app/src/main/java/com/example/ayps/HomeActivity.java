@@ -20,14 +20,6 @@ public class HomeActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
 
-    ExploreFragment exploreFragment = new ExploreFragment();
-    AddSpotFragment addSpotFragment = new AddSpotFragment();
-    ProfileFragment profileFragment = new ProfileFragment();
-    SavedSpotsFragment savedSpotsFragment = new SavedSpotsFragment();
-
-    final FragmentManager fm = getSupportFragmentManager();
-    Fragment active = exploreFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -44,6 +36,8 @@ public class HomeActivity extends AppCompatActivity {
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                    Log.d(TAG, "Lesgo");
 
                     if ( item.getItemId() == R.id.explore ) {
                         ExploreFragment exploreFragment = ExploreFragment.newInstance();
@@ -66,14 +60,11 @@ public class HomeActivity extends AppCompatActivity {
                 }
             };
 
-
     private void openFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.container, fragment)
                 .commit();
     }
-
-
 
 }

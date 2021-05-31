@@ -210,7 +210,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                             emptySpotsRL.setVisibility(View.GONE);
                         }
 
-                        adapter = new SpotGalleryAdapter( requireContext(), spotsImgsRefs );
+                        adapter = new SpotGalleryAdapter( view.getContext(), spotsImgsRefs );
                         spotListRV.setLayoutManager( new GridLayoutManager( view.getContext(), 3 ) );
                         spotListRV.setAdapter( adapter );
 
